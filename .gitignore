@@ -2,6 +2,8 @@
 *.pdf
 tmp-pdfcrop-*.tex
 
+plantuml.tar.gz
+
 # Created by https://www.gitignore.io/api/code,latex,linux,macos,windows,intellij
 
 ### Code ###

@@ -76,6 +76,11 @@ Car -- Person : < owns
 
 ![example minimal](example-class-relations.png)
 
+## Development
+
+### Releasing
+
+- `ctanify --notds plantuml.sty plantuml.lua README.md "*.png" "example-*.tex"`
 
 ## License
 

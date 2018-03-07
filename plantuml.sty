@@ -1,0 +1,90 @@
+%% Copyright (C) 2018 Oliver Kopp, https://github.com/koppor
+%%
+%% SPDX-License-Identifier: LPPL-1.3c+
+\NeedsTeXFormat{LaTeX2e}\relax
+\ProvidesPackage{plantuml}
+  [0000/00/00 Unreleased v0.1.0
+  Embed PlantUML diagrams in latex documents.]
+
+% Required by PlantUML LaTeX output
+\RequirePackage{tikz}
+\RequirePackage{aeguill}
+
+% Enable checking for active -shell-escape
+% Source: https://tex.stackexchange.com/a/88620/9075
+\RequirePackage{pdftexcmds}
+
+% Prepare writing contents of a self-defined environment to a file
+% Source: https://tex.stackexchange.com/a/130298/9075
+\RequirePackage{fancyvrb}
+
+\RequirePackage{l3keys2e}
+\RequirePackage{xparse}
+
+\RequirePackage{ifthen}
+
+\RequirePackage{adjustbox}
+
+\ExplSyntaxOn
+\keys_define:nn { plantuml } {
+  output .choices:nn = {
+    {latex, png, svg}
+    { \tl_gset:NV \l_plantuml_mode \l_keys_choice_tl }
+  },
+  output .initial:n = latex
+}
+\ProcessKeysOptions { plantuml }
+\ExplSyntaxOff
+
+%hint from https://tex.stackexchange.com/a/86355/9075
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\ifluatex
+  \ExplSyntaxOn
+  \let\PlantUmlMode\l_plantuml_mode
+  \ExplSyntaxOff
+  \RequirePackage{luacode}
+  \makeatletter
+  \ifcase\pdf@shellescape
+    \message{No shell escape. PlantUML cannot be called. Start lualatex with -shell-escape.}
+    \newenvironment{plantuml}{%
+      No shell escape. PlantUML cannot be called. Start lualatex with -shell-escape.
+    }{}
+  \or
+    \directlua{
+      local plantUmlJar = os.getenv("PLANTUML_JAR")
+      if not plantUmlJar then
+        texio.write_nl("Environment variable PLANTUML_JAR not set.")
+      end
+    }
+    \NewDocumentEnvironment{plantuml}{}{%
+      \VerbatimOut{\jobname-plantuml.txt}}
+    {%
+      \endVerbatimOut
+      \directlua{
+        local jobname=\luastring{\jobname}
+        local plantUmlMode=\luastring{\PlantUmlMode}
+        require("plantuml.lua")
+        convertPlantUmlToTikz(jobname, plantUmlMode)
+      }
+      \ifthenelse{\equal{\PlantUmlMode}{latex}}{
+        \begin{adjustbox}{max width=\linewidth}
+          \input{\jobname-plantuml.latex}
+        \end{adjustbox}
+      }{
+        \includegraphics[width=\maxwidth{\textwidth}]{\jobname-plantuml.\PlantUmlMode}
+      }
+    }
+  \or
+    \message{Restricted shell escape. PlantUML cannot be called. Start lualatex with -shell-escape.}
+    \newenvironment{plantuml}{%
+      Restricted shell escape. PlantUML cannot be called. Start lualatex with -shell-escape.
+    }{}
+  \fi
+  \makeatother
+\else
+  \typeout{*** plantuml only works with lualatex ***}
+\fi
+

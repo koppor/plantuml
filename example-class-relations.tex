@@ -1,0 +1,29 @@
+\documentclass{scrartcl}
+
+\usepackage{graphics}
+
+% Enables inclusion of SVG graphics - 1:1 approach
+% This is NOT the approach of http://www.ctan.org/tex-archive/info/svg-inkscape,
+% which allows text in SVG to be typeset using LaTeX
+% We just include the SVG as is
+\usepackage{epstopdf}
+\epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{%
+  inkscape -z -D --file=#1 --export-pdf=\jobname-plantuml-svg.pdf &&
+  %due to https://bugs.launchpad.net/inkscape/+bug/1754167 we need to use pdfcrop
+  pdfcrop \jobname-plantuml-svg.pdf \OutputFile
+}
+
+\usepackage[output=svg]{plantuml}
+%\usepackage[output=latex]{plantuml}
+
+\begin{document}
+\begin{plantuml}
+@startuml
+class Car
+
+Driver - Car : drives >
+Car *- Wheel : have 4 >
+Car -- Person : < owns
+@enduml
+\end{plantuml}
+\end{document}

@@ -1,0 +1,12 @@
+version: 2
+jobs:
+   build:
+     docker:
+       - image: koppor/texlive
+     steps:
+       - checkout
+       - run: mkdir build
+       - run: lualatex -shell-escape example-minimal && cp example-minimal.pdf example-minimal.png build/
+       - run: lualatex -shell-escape example-class-relations  && cp example-class-relations.pdf example-class-relations.png build/
+       - run: cp -r README.md .github/_config.yml docs/* build/
+       - run: if [ "$CIRCLE_BRANCH" == "master" ]; then .circleci/deploy-ghpages.sh build/; fi

@@ -83,6 +83,11 @@ Your latex distribution should take care.
 For manual installation, copy `plantuml.*` to your local texmf folder in the subdirectoy `tex/latex/plantuml`.
 See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for the concrete location of the folder on your system.
 
+## Alternative Solutions
+
+Alternative solutions can be found at the [CTAN topic UML](https://www.ctan.org/topic/uml).
+[TikZ-UML](https://perso.ensta-paristech.fr/~kielbasi/tikzuml/) is a very powerful package based in [TikZ](https://www.ctan.org/pkg/pgf).
+
 ## Development
 
 ### Releasing

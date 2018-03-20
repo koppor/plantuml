@@ -5,9 +5,13 @@ jobs:
        - image: koppor/texlive
      steps:
        - checkout
+       # make homepage
        - run: mkdir build
        - run: lualatex -shell-escape example-minimal && cp example-minimal.pdf example-minimal.png build/
-       - run: lualatex -shell-escape example-class-relations  && cp example-class-relations.pdf example-class-relations.png build/
-       - run: ctanify --notds plantuml.sty plantuml.lua README.md "*.png" "example-*.tex" && mkdir ctan && cp plantuml.tar.gz ctan/
+       - run: lualatex -shell-escape example-class-relations--svg  && cp example-class-relations--svg.pdf example-class-relations--svg.png build/
+       - run: lualatex -shell-escape example-class-relations--latex  && cp example-class-relations--latex.pdf build/
        - run: cp -r README.md .github/_config.yml build/
        - run: if [ "$CIRCLE_BRANCH" == "master" ]; then .circleci/deploy-ghpages.sh build/; fi
+       # make CTAN package
+       - run: ./release.sh
+       - run: mkdir ctan && cp plantuml.tar.gz ctan/

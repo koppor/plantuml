@@ -53,8 +53,7 @@ Check [issue #1](https://github.com/latextemplates/plantuml/issues/1) for the cu
 \usepackage{graphics}
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
-  inkscape -z -D --file=#1 --export-pdf=\jobname-plantuml-svg.pdf &&
-  pdfcrop \jobname-plantuml-svg.pdf \OutputFile
+  inkscape -z --file=#1 --export-pdf=\OutputFile
 }
 \usepackage[output=svg]{plantuml}
 \begin{document}

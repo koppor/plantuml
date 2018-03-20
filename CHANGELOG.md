@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - `README.md` is not distributed to CTAN anymore, because `plantuml.pdf` is distributed to follow latex software conventions to name the manual according to the name of the package.
   `plantuml.pdf` generated out of `README.md`.
+- Removed call to `pdfcrop` is not necessary anymore, because inkscape is called without `-D` for svg convertion.
 
 ### Added
 

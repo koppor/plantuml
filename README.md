@@ -1,4 +1,4 @@
-# plantuml [![CTAN](https://img.shields.io/badge/CTAN-plantuml-blue.svg?style=flat-square)](https://ctan.org/pkg/plantuml) 
+# plantuml [![CTAN](https://img.shields.io/badge/CTAN-plantuml-blue.svg?style=flat-square)](https://ctan.org/pkg/plantuml)
 
 > A LuaLaTeX package for PlantUML in LaTeX
 
@@ -44,7 +44,7 @@ Check [issue #1](https://github.com/latextemplates/plantuml/issues/1) for the cu
 
 ![example minimal](example-minimal.png)
 
-### Example Class Relations Rendered using SVG
+### Example Class Relations Rendered Using SVG
 
 **LaTeX source:**
 
@@ -87,12 +87,6 @@ See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for t
 
 [TikZ-UML](https://perso.ensta-paristech.fr/~kielbasi/tikzuml/) is a very powerful package based in [TikZ](https://www.ctan.org/pkg/pgf).
 More alternative solutions are collected at the [CTAN topic UML](https://www.ctan.org/topic/uml).
-
-## Development
-
-### Releasing
-
-- `ctanify --notds plantuml.sty plantuml.lua README.md "*.png" "example-*.tex"`
 
 ## License
 

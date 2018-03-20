@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- `README.md` is not distributed to CTAN anymore, because `plantuml.pdf` is distributed to follow latex software conventions to name the manual according to the name of the package.
+  `plantuml.pdf` generated out of `README.md`.
+
+### Added
+
+- `release.sh` for creating a release.
+
 ## 0.1.0 - 2018-03-08
 
 Initial public release

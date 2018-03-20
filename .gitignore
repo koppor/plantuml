@@ -1,6 +1,7 @@
 *-plantuml.*
 *.pdf
 tmp-pdfcrop-*.tex
+tex2pdf.*
 
 plantuml.tar.gz
 

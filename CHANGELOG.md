@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## Changed
+
+- Added version number in generated plantuml.pdf.
+- Do not strip down `README.md` for CTAN anymore and provide "*.png" for generation of `plantuml.pdf`.
+
 ## [0.2.1] - 2017-03-21
 
 ### Fixed

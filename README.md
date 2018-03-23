@@ -84,7 +84,7 @@ See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for t
 
 ## Development
 
-The release is built at [CircleCI](http://circleci.com/) using `release.sh`.
+The release is built at [CircleCI](http://circleci.com/) using [release.sh](release.sh).
 
 Release prepration:
 

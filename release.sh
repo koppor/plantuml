@@ -8,4 +8,4 @@ sed -i "s/# plantuml.*/# plantuml\n\nVersion $TAG/" README.md
 pandoc README.md --pdf-engine=lualatex -o plantuml.pdf
 
 # Prepare for CTAN
-ctanify --notds plantuml.sty plantuml.lua plantuml.pdf README.md CHANGELOG.md "example-*.tex" "example-*.png"
+ctanify --notds plantuml.sty plantuml.lua plantuml.pdf README.md CHANGELOG.md release.sh "example-*.tex" "example-*.png"

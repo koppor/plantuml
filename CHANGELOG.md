@@ -10,20 +10,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Removed `\usepackage{aeguill}` as 1) PlantUML seems not to rely on it any more and 2) [it is obsolete and should not be used anymore](https://tex.stackexchange.com/a/5901/9075).
 
-## [0.2.2] - 2017-03-22
+## [0.2.2] - 2018-03-22
 
 ## Changed
 
 - Added version number in generated `plantuml.pdf`.
 - Do not strip down `README.md` for CTAN anymore and provide "*.png" for generation of `plantuml.pdf`.
 
-## [0.2.1] - 2017-03-21
+## [0.2.1] - 2018-03-21
 
 ### Fixed
 
 - Added short version of `README.md` to CTAN distribution again, because of [CTAN rules](https://mirror.informatik.hs-fulda.de/tex-archive/help/ctan/CTAN-upload-addendum.html#readme).
 
-## [0.2.0] - 2017-03-20
+## [0.2.0] - 2018-03-20
 
 ### Changed
 

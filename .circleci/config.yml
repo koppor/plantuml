@@ -10,6 +10,7 @@ jobs:
       - run: lualatex -shell-escape example-minimal && cp example-minimal.pdf example-minimal.png build/
       - run: lualatex -shell-escape example-class-relations--svg  && cp example-class-relations--svg.pdf example-class-relations--svg.png build/
       - run: lualatex -shell-escape example-class-relations--latex  && cp example-class-relations--latex.pdf build/
+      - run: lualatex -shell-escape example-component-diagram  && cp example-component-diagram.pdf build/
       - run: cp -r README.md .github/_config.yml build/
       - run: if [ "$CIRCLE_BRANCH" == "master" ]; then .circleci/deploy-ghpages.sh build/; fi
       - store_artifacts:

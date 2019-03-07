@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: danteev/texlive:v1.6.0
+      - image: danteev/texlive
     steps:
       - checkout
       # make homepage

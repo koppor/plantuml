@@ -24,6 +24,11 @@
 
 \RequirePackage{adjustbox}
 
+% \jobname has a probrem of encodeing
+% if your latex filename include multibyte string
+% you need to redefine PlantUMLJobname to fix
+\def\PlantUMLJobname{\jobname}
+
 \ExplSyntaxOn
 \keys_define:nn { plantuml } {
   output .choices:nn = {
@@ -68,12 +73,12 @@
     }
   \fi
   \NewDocumentEnvironment{plantuml}{}{%
-    \VerbatimOut{\jobname-plantuml.txt}}
+    \VerbatimOut{\PlantUMLJobname-plantuml.txt}}
   {%
     \endVerbatimOut
     \ifluatex
       \directlua{
-        local jobname=\luastring{\jobname}
+        local jobname=\luastring{\PlantUMLJobname}
         local plantUmlMode=\luastring{\PlantUmlMode}
         require("plantuml.lua")
         convertPlantUmlToTikz(jobname, plantUmlMode)
@@ -85,10 +90,10 @@
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{
       \begin{adjustbox}{max width=\linewidth}
-        \input{\jobname-plantuml.latex}
+        \input{\PlantUMLJobname-plantuml.latex}
       \end{adjustbox}
     }{
-      \includegraphics[width=\maxwidth{\textwidth}]{\jobname-plantuml.\PlantUmlMode}
+      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUMLJobname-plantuml.\PlantUmlMode}
     }
   }
 \or

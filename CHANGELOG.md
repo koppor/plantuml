@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Added
 
 - Added support for UTF-8 filenames.
-- Added `example-component-diagram.tex`. Refs [#2](https://github.com/latextemplates/plantuml/issues/9).
+- Added `example-component-diagram.tex`. Refs [#2](https://github.com/koppor/plantuml/issues/9).
 
 ## [0.2.3] - 2018-06-04
 
@@ -54,9 +54,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial public release
 
-[unreleased]: https://github.com/latextemplates/plantuml/compare/0.3.0...HEAD
-[0.3.0]: https://github.com/latextemplates/plantuml/compare/0.2.3...0.3.0
-[0.2.3]: https://github.com/latextemplates/plantuml/compare/0.2.2...0.2.3
-[0.2.2]: https://github.com/latextemplates/plantuml/compare/0.2.1...0.2.2
-[0.2.1]: https://github.com/latextemplates/plantuml/compare/0.2.0...0.2.1
-[0.2.0]: https://github.com/latextemplates/plantuml/compare/0.1.0...0.2.0
+[unreleased]: https://github.com/koppor/plantuml/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/koppor/plantuml/compare/0.2.3...0.3.0
+[0.2.3]: https://github.com/koppor/plantuml/compare/0.2.2...0.2.3
+[0.2.2]: https://github.com/koppor/plantuml/compare/0.2.1...0.2.2
+[0.2.1]: https://github.com/koppor/plantuml/compare/0.2.0...0.2.1
+[0.2.0]: https://github.com/koppor/plantuml/compare/0.1.0...0.2.0

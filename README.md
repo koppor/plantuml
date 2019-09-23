@@ -6,7 +6,7 @@
 This package allows for embedding PlantUML diagrams using the PlantUML source.
 
 Currently, this project runs with [lualatex](http://www.luatex.org/) only.
-Check [issue #1](https://github.com/latextemplates/plantuml/issues/1) for the current state of affairs for support pdflatex.
+Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current state of affairs for support pdflatex.
 
 ## Preconditions
 

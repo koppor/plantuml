@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Added
 
 - Added support for UTF-8 filenames.
-- Added `example-component-diagram.tex`. Refs [#2](https://github.com/koppor/plantuml/issues/9).
+- Added `example-component-diagram.tex`. Refs [#9](https://github.com/koppor/plantuml/issues/9).
 
 ## [0.2.3] - 2018-06-04
 

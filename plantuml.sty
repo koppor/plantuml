@@ -24,9 +24,8 @@
 
 \RequirePackage{adjustbox}
 
-% \jobname has a probrem of encodeing
-% if your latex filename include multibyte string
-% you need to redefine PlantUMLJobname to fix
+% \jobname has an encoding issue if the .tex filename includes a multibyte string.
+% One needs to redefine PlantUMLJobname to fix it
 \def\PlantUMLJobname{\jobname}
 
 \ExplSyntaxOn

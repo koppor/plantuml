@@ -17,6 +17,6 @@ jobs:
           path: build/
       # make CTAN package
       - run: ./release.sh
-      - run: mkdir ctan && cp plantuml.tar.gz ctan/
+      - run: mkdir ctan && cp plant-uml.tar.gz ctan/
       - store_artifacts:
           path: ctan/

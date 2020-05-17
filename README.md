@@ -1,4 +1,4 @@
-# plantuml [![CTAN](https://img.shields.io/badge/CTAN-plantuml-blue.svg?style=flat-square)](https://ctan.org/pkg/plantuml)
+# plant-uml [![CTAN](https://img.shields.io/badge/CTAN-plant-uml-blue.svg?style=flat-square)](https://ctan.org/pkg/plant-uml)
 
 > A LuaLaTeX package for PlantUML in LaTeX
 
@@ -6,7 +6,7 @@
 This package allows for embedding PlantUML diagrams using the PlantUML source.
 
 Currently, this project runs with [lualatex](http://www.luatex.org/) only.
-Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current state of affairs for support pdflatex.
+Check [issue #1](https://github.com/jeff-tian/plantuml/issues/1) for the current state of affairs for support pdflatex.
 
 ## Preconditions
 
@@ -28,13 +28,13 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 
 ```latex
 \documentclass{scrartcl}
-\usepackage{plantuml}
+\usepackage{plant-uml}
 \begin{document}
-\begin{plantuml}
+\begin{plant-uml}
   @startuml
   Alice -> Bob: test
   @enduml
-\end{plantuml}
+\end{plant-uml}
 \end{document}
 ```
 
@@ -55,9 +55,9 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
   inkscape -z --file=#1 --export-pdf=\OutputFile
 }
-\usepackage[output=svg]{plantuml}
+\usepackage[output=svg]{plant-uml}
 \begin{document}
-\begin{plantuml}
+\begin{plant-uml}
 @startuml
 class Car
 
@@ -65,7 +65,7 @@ Driver - Car : drives >
 Car *- Wheel : have 4 >
 Car -- Person : < owns
 @enduml
-\end{plantuml}
+\end{plant-uml}
 \end{document}
 ```
 
@@ -79,7 +79,7 @@ Car -- Person : < owns
 
 Your latex distribution should take care.
 
-For manual installation, copy `plantuml.*` to your local texmf folder in the subdirectoy `tex/latex/plantuml`.
+For manual installation, copy `plant-uml.*` to your local texmf folder in the subdirectoy `tex/latex/plant-uml`.
 See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for the concrete location of the folder on your system.
 
 ## Development
@@ -88,7 +88,7 @@ The release is built at [CircleCI](http://circleci.com/) using [release.sh](rele
 
 Release prepration:
 
-1. Adapt date and version number in `plantuml.sty`.
+1. Adapt date and version number in `plant-uml.sty`.
 1. Adapt `CHANGELOG.md`.
 1. Set a git tag and push.
 

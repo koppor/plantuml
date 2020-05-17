@@ -2,10 +2,10 @@
 TAG=`git describe --abbrev=0 --tags`
 
 # remove shields.io badge
-sed -i "s/# plantuml.*/# plantuml\n\nVersion $TAG/" README.md
+sed -i "s/# plant-uml.*/# plant-uml\n\nVersion $TAG/" README.md
 
-# generate plantuml.pdf based on README.md based on pandoc 2.x
-pandoc README.md --pdf-engine=lualatex -o plantuml.pdf
+# generate plant-uml.pdf based on README.md based on pandoc 2.x
+pandoc README.md --pdf-engine=lualatex -o plant-uml.pdf
 
 # Prepare for CTAN
-ctanify --notds plantuml.sty plantuml.lua plantuml.pdf README.md CHANGELOG.md release.sh "example-*.tex" "example-*.png"
+ctanify --notds plant-uml.sty plant-uml.lua plant-uml.pdf README.md CHANGELOG.md release.sh "example-*.tex" "example-*.png"

@@ -11,10 +11,10 @@
   inkscape -z --file=#1 --export-pdf=\OutputFile
 }
 
-\usepackage[output=svg]{plantuml}
+\usepackage[output=svg]{plant-uml}
 
 \begin{document}
-\begin{plantuml}
+\begin{plant-uml}
 @startuml
 class Car
 
@@ -22,5 +22,5 @@ Driver - Car : drives >
 Car *- Wheel : have 4 >
 Car -- Person : < owns
 @enduml
-\end{plantuml}
+\end{plant-uml}
 \end{document}

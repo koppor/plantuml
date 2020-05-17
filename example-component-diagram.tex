@@ -10,10 +10,10 @@
   inkscape -z --file=#1 --export-pdf=\OutputFile
 }
 
-\usepackage[output=svg]{plantuml}
+\usepackage[output=svg]{plant-uml}
 
 \begin{document}
-\begin{plantuml}
+\begin{plant-uml}
 @startuml
 () "Interface 2" as I2
 () "Interface 3" as I3
@@ -28,5 +28,5 @@ c1 -- I3
 I2 )-- c2
 I3 )-- c3
 @enduml
-\end{plantuml}
+\end{plant-uml}
 \end{document}

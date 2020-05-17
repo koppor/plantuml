@@ -2,7 +2,7 @@
 %%
 %% SPDX-License-Identifier: LPPL-1.3c+
 \NeedsTeXFormat{LaTeX2e}\relax
-\ProvidesPackage{plantuml}
+\ProvidesPackage{plant-uml}
   [2019/09/23 v0.3.0
   Embed PlantUML diagrams in latex documents.]
 
@@ -29,14 +29,14 @@
 \def\PlantUMLJobname{\jobname}
 
 \ExplSyntaxOn
-\keys_define:nn { plantuml } {
+\keys_define:nn { plant-uml } {
   output .choices:nn = {
     {latex, png, svg}
     { \tl_gset:NV \l_plantuml_mode \l_keys_choice_tl }
   },
   output .initial:n = latex
 }
-\ProcessKeysOptions { plantuml }
+\ProcessKeysOptions { plant-uml }
 \ExplSyntaxOff
 
 %hint from https://tex.stackexchange.com/a/86355/9075
@@ -59,7 +59,7 @@
 \makeatletter
 \ifcase\pdf@shellescape
   \message{No shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.}
-  \newenvironment{plantuml}{%
+  \newenvironment{plant-uml}{%
     No shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.
   }{}
 \or
@@ -71,7 +71,7 @@
       end
     }
   \fi
-  \NewDocumentEnvironment{plantuml}{}{%
+  \NewDocumentEnvironment{plant-uml}{}{%
     \VerbatimOut{\PlantUMLJobname-plantuml.txt}}
   {%
     \endVerbatimOut
@@ -79,7 +79,7 @@
       \directlua{
         local jobname=\luastring{\PlantUMLJobname}
         local plantUmlMode=\luastring{\PlantUmlMode}
-        require("plantuml.lua")
+        require("plant-uml.lua")
         convertPlantUmlToTikz(jobname, plantUmlMode)
       }
     \else

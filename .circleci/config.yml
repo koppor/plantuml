@@ -20,4 +20,5 @@ jobs:
       - run: mkdir ctan && cp plant-uml.tar.gz ctan/
       - store_artifacts:
           path: ctan/
-      - run: l3build upload --email "jeff.tian@outlook.com" --message "Minor update to fix some erroneous"
+      - run: l3build ctan && l3build upload --email "jeff.tian@outlook.com" --message "Minor update to fix some
+      - erroneous"

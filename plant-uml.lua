@@ -4,7 +4,7 @@ require "lfs"
 
 -- @param mode directly passed to PlantUML. Recommended: png, svg, pdf (requires Apache Batik to convert svg to pdf)
 function convertPlantUmlToTikz(jobname, mode)
-  local plantUmlSourceFilename = jobname .. "-plant-uml.txt"
+  local plantUmlSourceFilename = jobname .. "-plantuml.txt"
   local plantUmlTargetFilename = jobname .. "-plant-uml." .. mode
 
   -- delete generated file to ensure they are really recreated

@@ -368,3 +368,5 @@ $RECYCLE.BIN/
 
 
 # End of https://www.gitignore.io/api/code,latex,linux,macos,windows,intellij
+
+.idea

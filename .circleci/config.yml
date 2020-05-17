@@ -4,8 +4,6 @@ jobs:
     docker:
       - image: danteev/texlive
     steps:
-      - run: git config --global user.email "jeff.tian@outlook.com"
-      - run: git config --global user.name "Jeff Tian"
       - checkout
       # make homepage
       - run: mkdir build

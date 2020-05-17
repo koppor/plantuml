@@ -21,8 +21,8 @@ fi
 mkdir gh-pages-branch
 cd gh-pages-branch
 # now lets setup a new repo so we can update the gh-pages branch
-git config --global user.email "jeff.tian@outlook.com" > /dev/null 2>&1
-git config --global user.name "Jeff Tian" > /dev/null 2>&1
+git config --global user.email "$GH_EMAIL" > /dev/null 2>&1
+git config --global user.name "$GH_NAME" > /dev/null 2>&1
 git init
 git remote add --fetch origin "$remote"
 
@@ -45,9 +45,6 @@ git add -A
 # now commit, ignoring branch gh-pages doesn't seem to work, so trying skip
 git commit --allow-empty -m "Deploy to GitHub pages [ci skip]"
 # and push, but send any output to /dev/null to hide anything sensitive
-
-echo ~/.ssh/id_rsa.pub
-
 git push --force --quiet origin gh-pages
 
 # go back to where we started and remove the gh-pages git repo we made and used

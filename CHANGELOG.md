@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.1] - 2020-05-19
+
+### Fixed
+
+- Added `-Djava.awt.headless=true` parameter to the call of `plantuml.jar` so it runs silently without interference
+ the current focus
 
 ## [0.3.0] - 2019-09-23
 

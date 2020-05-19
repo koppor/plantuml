@@ -22,7 +22,7 @@ function convertPlantUmlToTikz(jobname, mode)
   end
 
   texio.write("Executing PlantUML... ")
-  local cmd = "java -jar " .. plantUmlJar .. " -charset UTF-8 -t"
+  local cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -t"
   if (mode == "latex") then
     cmd = cmd .. "latex:nopreamble"
   else

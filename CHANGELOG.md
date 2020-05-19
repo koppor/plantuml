@@ -14,24 +14,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.0] – 2019-09-23
 
-## Added
+### Added
 
 - Added support for UTF-8 filenames.
 - Added `example-component-diagram.tex`. Refs [#9](https://github.com/koppor/plantuml/issues/9).
 
 ## [0.2.3] – 2018-06-04
 
-## Added
+### Added
 
 - Add `release.sh` to CTAN upload
 
-## Removed
+### Removed
 
 - Removed `\usepackage{aeguill}` as 1) PlantUML seems not to rely on it any more and 2) [it is obsolete and should not be used anymore](https://tex.stackexchange.com/a/5901/9075).
 
 ## [0.2.2] – 2018-03-22
 
-## Changed
+### Changed
 
 - Added version number in generated `plantuml.pdf`.
 - Do not strip down `README.md` for CTAN anymore and provide "*.png" for generation of `plantuml.pdf`.

@@ -1,8 +1,5 @@
-name: Build and publish to gh-pages
-on:
-  push:
-    branches:
-      - master
+name: Build
+on: [push, pull_request]
 jobs:
   ctan:
     runs-on: ubuntu-latest
@@ -52,7 +49,7 @@ jobs:
           mv example-*.pdf build/
           mv example-*.png build/
           cp -r README.md .github/_config.yml build/
-      - name: Publish to GitHub pages (gh-pages)
+      - name: Publish to GitHub pages
         if: success() && github.ref == 'refs/heads/master'
         uses: crazy-max/ghaction-github-pages@v1
         with:

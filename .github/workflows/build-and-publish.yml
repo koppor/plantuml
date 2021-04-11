@@ -7,7 +7,7 @@ jobs:
       - name: Set up Git repository
         uses: actions/checkout@v2
       - name: release.sh
-        uses: dante-ev/latex-action@master
+        uses: dante-ev/latex-action@latest
         with:
           entrypoint: ./release.sh
       - uses: actions/upload-artifact@v2
@@ -20,25 +20,25 @@ jobs:
       - name: Set up Git repository
         uses: actions/checkout@v2
       - name: example-minimal
-        uses: dante-ev/latex-action@master
+        uses: dante-ev/latex-action@latest
         with:
           root_file: example-minimal.tex
           compiler: lualatex
           args: -interaction=nonstopmode -shell-escape
       - name: example-class-relations--svg
-        uses: dante-ev/latex-action@master
+        uses: dante-ev/latex-action@latest
         with:
           root_file: example-class-relations--svg.tex
           compiler: lualatex
           args: -interaction=nonstopmode -shell-escape
       - name: example-class-relations--latex
-        uses: dante-ev/latex-action@master
+        uses: dante-ev/latex-action@latest
         with:
           root_file: example-class-relations--latex.tex
           compiler: lualatex
           args: -interaction=nonstopmode -shell-escape
       - name: example-component-diagram
-        uses: dante-ev/latex-action@master
+        uses: dante-ev/latex-action@latest
         with:
           root_file: example-component-diagram.tex
           compiler: lualatex
@@ -50,7 +50,7 @@ jobs:
           mv example-*.png build/
           cp -r README.md .github/_config.yml build/
       - name: Publish to GitHub pages
-        if: success() && github.ref == 'refs/heads/master'
+        if: success() && github.ref == 'refs/heads/main'
         uses: crazy-max/ghaction-github-pages@v1
         with:
           target_branch: gh-pages

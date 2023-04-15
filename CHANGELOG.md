@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [1.0.0] - 2022-04-15
-
 ### Changed
 
 - Updated file extension for including diagrams to `.tex` to align with changes

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+## [1.0.0] - 2022-04-15
+
+### Changed
+
+- Updated file extension for including diagrams to `.tex` to align with changes
+  introduced in PlantUML v1.2023.0. This change is not backwards compatible with
+  older versions of PlantUML.
+
 ## [0.3.1] – 2020-05-19
 
 ### Fixed

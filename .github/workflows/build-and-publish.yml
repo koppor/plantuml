@@ -5,12 +5,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: release.sh
         uses: dante-ev/latex-action@latest
         with:
           entrypoint: ./release.sh
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: ctan
           path: plantuml.tar.gz
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: example-minimal
         uses: dante-ev/latex-action@latest
         with:
@@ -51,7 +51,7 @@ jobs:
           cp -r README.md .github/_config.yml build/
       - name: Publish to GitHub pages
         if: success() && github.ref == 'refs/heads/main'
-        uses: crazy-max/ghaction-github-pages@v1
+        uses: crazy-max/ghaction-github-pages@v3
         with:
           target_branch: gh-pages
           build_dir: build/

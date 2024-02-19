@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Updated file extension for including diagrams to `.tex` to align with changes
   introduced in PlantUML v1.2023.0. This change is not backwards compatible with
-  older versions of PlantUML.
+  older versions of PlantUML. [#29](https://github.com/koppor/plantuml/pull/29)
 
 ## [0.3.1] – 2020-05-19
 

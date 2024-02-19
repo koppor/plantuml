@@ -7,9 +7,6 @@ function convertPlantUmlToTikz(jobname, mode)
   local plantUmlSourceFilename = jobname .. "-plantuml.txt"
   local plantUmlTargetFilename = jobname .. "-plantuml." .. mode
 
-  -- delete generated file to ensure they are really recreated
-  os.remove(plantUmlTargetFilename)
-
   if not (lfs.attributes(plantUmlSourceFilename)) then
     texio.write_nl("Source " .. plantUmlSourceFilename .. " does not exist.")
     return
@@ -25,9 +22,15 @@ function convertPlantUmlToTikz(jobname, mode)
   local cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -t"
   if (mode == "latex") then
     cmd = cmd .. "latex:nopreamble"
+    -- plantuml has changed output format in https://github.com/plantuml/plantuml/pull/1237
+    plantUmlTargetFilename = jobname .. "-plantuml.tex"
   else
     cmd = cmd .. mode
   end
+
+  -- delete generated file to ensure they are really recreated
+  os.remove(plantUmlTargetFilename)
+
   cmd = cmd .. " " .. plantUmlSourceFilename
   texio.write_nl(cmd)
   local handle,error = io.popen(cmd)

@@ -3,7 +3,7 @@
 %% SPDX-License-Identifier: LPPL-1.3c+
 \NeedsTeXFormat{LaTeX2e}\relax
 \ProvidesPackage{plantuml}
-  [2023/05/12 v0.3.2
+  [2024/02/23 v0.3.3
   Embed PlantUML diagrams in latex documents.]
 
 % Required by PlantUML LaTeX output
@@ -24,9 +24,11 @@
 
 \RequirePackage{adjustbox}
 
+\newcounter{PlantUmlFigureNumberSVG}
+\def\UMLcountUp{\stepcounter{PlantUmlFigureNumberSVG} \def\PlantUMLJobname{PlantUML\thePlantUmlFigureNumberSVG}}
 % \jobname has an encoding issue if the .tex filename includes a multibyte string.
 % One needs to redefine PlantUMLJobname to fix it
-\def\PlantUMLJobname{\jobname}
+\def\PlantUMLJobname{\jobname\thePlantUmlFigureNumberSVG}
 
 \ExplSyntaxOn
 \keys_define:nn { plantuml } {
@@ -93,6 +95,7 @@
       \end{adjustbox}
     }{
       \includegraphics[width=\maxwidth{\textwidth}]{\PlantUMLJobname-plantuml.\PlantUmlMode}
+	  \UMLcountUp
     }
   }
 \or
@@ -102,4 +105,3 @@
   }{}
 \fi
 \makeatother
-

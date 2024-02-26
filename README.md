@@ -69,6 +69,28 @@ Car -- Person : < owns
 \end{document}
 ```
 
+**For newer Inkscape use this LaTeX source:**
+```latex
+\documentclass{scrartcl}
+\usepackage{graphics}
+\usepackage{epstopdf}
+\epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{%
+  inkscape #1 --export-filename=\OutputFile
+}
+\usepackage[output=svg]{plantuml}
+\begin{document}
+\begin{plantuml}
+@startuml
+class Car
+
+Driver - Car : drives >
+Car *- Wheel : have 4 >
+Car -- Person : < owns
+@enduml
+\end{plantuml}
+\end{document}
+```
+
 **Compilation:** `lualatex -shell-escape example-class-relations`
 
 **Result:**

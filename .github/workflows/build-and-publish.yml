@@ -10,7 +10,7 @@ jobs:
         uses: dante-ev/latex-action@latest
         with:
           entrypoint: ./release.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ctan
           path: plantuml.tar.gz

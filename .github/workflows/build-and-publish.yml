@@ -51,7 +51,7 @@ jobs:
           cp -r README.md .github/_config.yml build/
       - name: Publish to GitHub pages
         if: success() && github.ref == 'refs/heads/main'
-        uses: crazy-max/ghaction-github-pages@v3
+        uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: gh-pages
           build_dir: build/

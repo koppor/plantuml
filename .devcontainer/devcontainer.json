@@ -1,0 +1,11 @@
+{
+    "name": "iot-ex",
+    "image": "registry.gitlab.com/islandoftex/images/texlive:latest",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "DavidAnson.vscode-markdownlint"
+            ]
+        }
+    }
+}

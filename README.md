@@ -12,7 +12,7 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 
 1. Environment variable `PLANTUML_JAR` set to the location of `plantuml.jar`.
    You get it from <https://sourceforge.net/projects/plantuml/files/plantuml.jar/download>.
-2. Enviroment variable `GRAPHVIZ_DOT` set to the location of `dot.exe`.
+2. Windows: Environment variable `GRAPHVIZ_DOT` set to the location of `dot.exe`.
    Example: `C:\Program Files (x86)\Graphviz2.38\bin\dot.exe`.
    You can install graphviz using `choco install graphviz`.
 3. lualatex available with command line parameter `-shell-escape` included.

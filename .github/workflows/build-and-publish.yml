@@ -22,7 +22,7 @@ jobs:
         with:
           name: ctan
           path: plantuml.tar.gz
-  build_and_publish:
+  build_and_ghpages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-java@v4

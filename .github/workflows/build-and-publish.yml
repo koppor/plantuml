@@ -39,6 +39,7 @@ jobs:
         if: steps.cache-plantuml.outputs.cache-hit != 'true'
         run: |
           mkdir /tmp/plantuml
+          cd /tmp/plantuml
           wget https://github.com/plantuml/plantuml/releases/download/v1.2024.6/plantuml-asl-1.2024.6.jar
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-asl-1.2024.6.jar" >> "$GITHUB_ENV"

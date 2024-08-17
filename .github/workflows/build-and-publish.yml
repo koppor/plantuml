@@ -46,20 +46,20 @@ jobs:
         with:
            package_file: tl_packages
       - name: example-minimal
-        run: cd examples && lualatex -interaction=nonstopmode -shell-escape example-minimal.tex
+        run: lualatex -interaction=nonstopmode -shell-escape example-minimal.tex
       - name: example-class-relations--latex
-        run: cd examples && lualatex -interaction=nonstopmode -shell-escape example-class-relations--latex
+        run: lualatex -interaction=nonstopmode -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
-        run: cd examples && lualatex -interaction=nonstopmode -shell-escape example-class-relations--svg
+        run: lualatex -interaction=nonstopmode -shell-escape example-class-relations--svg
       - name: example-component-diagram
-        run: cd examples && lualatex -interaction=nonstopmode -shell-escape example-component-diagram
+        run: lualatex -interaction=nonstopmode -shell-escape example-component-diagram
       - name: example-multiple-diagrams-svg
-        run: cd examples && lualatex -interaction=nonstopmode -shell-escape example-multiple-diagrams-svg
+        run: lualatex -interaction=nonstopmode -shell-escape example-multiple-diagrams-svg
       - name: Gather build artifacts
         run: |
           mkdir build
-          mv examples/example-*.pdf build/
-          mv examples/example-*.png build/
+          mv example-*.pdf build/
+          mv example-*.png build/
           cp -r README.md .github/_config.yml build/
       - name: Publish to GitHub pages
         if: github.ref == 'refs/heads/main'

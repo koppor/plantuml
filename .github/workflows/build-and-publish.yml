@@ -43,8 +43,6 @@ jobs:
           wget https://github.com/plantuml/plantuml/releases/download/v1.2024.6/plantuml-asl-1.2024.6.jar
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-asl-1.2024.6.jar" >> "$GITHUB_ENV"
-      - run: ls -la /tmp/plantuml/plantuml-asl-1.2024.6.jar
-      - run: java -jar /tmp/plantuml/plantuml-asl-1.2024.6.jar
       - uses: actions/checkout@v4
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:

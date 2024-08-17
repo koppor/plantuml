@@ -41,6 +41,9 @@ jobs:
       - name: Set ENV PLANTUML_JAR
         run: echo "ENV PLANTUML_JAR=/tmp/plantuml/plantuml-asl-1.2024.6.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: graphviz
       - name: Install TeX Live
         uses: zauguin/install-texlive@v3
         with:

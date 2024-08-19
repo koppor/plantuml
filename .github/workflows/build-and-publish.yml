@@ -52,15 +52,15 @@ jobs:
         with:
            package_file: tl_packages
       - name: example-minimal
-        run: lualatex -interaction=nonstopmode -shell-escape example-minimal.tex
+        run: lualatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
-        run: lualatex -interaction=nonstopmode -shell-escape example-class-relations--latex
+        run: lualatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
-        run: lualatex -interaction=nonstopmode -shell-escape example-class-relations--svg
+        run: lualatex -shell-escape example-class-relations--svg
       - name: example-component-diagram
-        run: lualatex -interaction=nonstopmode -shell-escape example-component-diagram
+        run: lualatex -shell-escape example-component-diagram
       - name: example-multiple-diagrams-svg
-        run: lualatex -interaction=nonstopmode -shell-escape example-multiple-diagrams-svg
+        run: lualatex -shell-escape example-multiple-diagrams-svg
       - name: Gather build artifacts
         run: |
           mkdir build

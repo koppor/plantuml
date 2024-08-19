@@ -47,6 +47,9 @@ jobs:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: graphviz inkscape
+      - run: dot --help
+      - run: which dot
+      - run: echo "GRAPHVIZ_DOT=`${which dot}`" >> "$GITHUB_ENV"
       - name: Install TeX Live
         uses: zauguin/install-texlive@v3
         with:

@@ -49,6 +49,7 @@ jobs:
           packages: graphviz inkscape
       - run: dot --help
       - run: which dot
+      - run: which inkscape
       - run: echo "GRAPHVIZ_DOT=`${which dot}`" >> "$GITHUB_ENV"
       - name: Install TeX Live
         uses: zauguin/install-texlive@v3

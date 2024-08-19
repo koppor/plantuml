@@ -47,6 +47,8 @@ jobs:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: graphviz inkscape
+          version: 1.0
+          execute_install_scripts: true
       - run: dpkg -L inkscape
       - run: which inkscape
       - name: Install TeX Live

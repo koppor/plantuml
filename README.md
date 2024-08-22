@@ -42,7 +42,7 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 
 **Result:**
 
-![Minimal example](examples/example-minimal.png)
+![Minimal example](example-minimal.png)
 
 ### Example Class Relations Rendered Using SVG
 
@@ -95,7 +95,7 @@ Car -- Person : < owns
 
 **Result:**
 
-![Class relations rendered using SVG](examples/example-class-relations--svg.png)
+![Class relations rendered using SVG](example-class-relations--svg.png)
 
 ## Installation
 

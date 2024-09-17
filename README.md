@@ -53,7 +53,7 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 \usepackage{graphics}
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
-  inkscape -z --file=#1 --export-pdf=\OutputFile
+  inkscape #1 --export-filename=\OutputFile
 }
 \usepackage[output=svg]{plantuml}
 \begin{document}
@@ -69,14 +69,14 @@ Car -- Person : < owns
 \end{document}
 ```
 
-**For newer Inkscape use this LaTeX source:**
+**For older Inkscape use this LaTeX source:**
 
 ```latex
 \documentclass{scrartcl}
 \usepackage{graphics}
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
-  inkscape #1 --export-filename=\OutputFile
+  inkscape -z --file=#1 --export-pdf=\OutputFile
 }
 \usepackage[output=svg]{plantuml}
 \begin{document}

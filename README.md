@@ -70,11 +70,12 @@ Car -- Person : < owns
 ```
 
 **For newer Inkscape use this LaTeX source:**
+
 ```latex
 \documentclass{scrartcl}
 \usepackage{graphics}
 \usepackage{epstopdf}
-\epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{%
+\epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
   inkscape #1 --export-filename=\OutputFile
 }
 \usepackage[output=svg]{plantuml}

@@ -111,9 +111,9 @@ The release is built using [GitHub Actions](https://github.com/features/actions)
 
 Release prepration:
 
-1. Adapt date and version number in `plantuml.sty`.
-1. Adapt `CHANGELOG.md`.
-1. Set a git tag and push.
+1. Adapt copyright year (line 1) as well as date and version number (line 6) in `plantuml.sty`.
+2. Adapt `CHANGELOG.md`.
+3. Set a git tag and push.
 
 ## Alternative Solutions
 

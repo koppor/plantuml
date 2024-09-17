@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.0] – 2024-09-17
+
+### Fixed
+
+- Updated command-line parameters for inkspace. [#33](https://github.com/koppor/plantuml/pull/33)
+- Updated command-line parameters for plantuml. [#33](https://github.com/koppor/plantuml/pull/33)
+- Works if multiple diagrams are present. [#15](https://github.com/koppor/plantuml/issues/15), [#17](https://github.com/koppor/plantuml/issues/17)
+
 ## [0.3.2] – 2023-05-12
 
 ### Changed
@@ -66,7 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial public release
 
-[unreleased]: https://github.com/koppor/plantuml/compare/0.3.2...HEAD
+[0.4.0]: https://github.com/koppor/plantuml/compare/0.3.2...0.4.0
 [0.3.2]: https://github.com/koppor/plantuml/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/koppor/plantuml/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/koppor/plantuml/compare/0.2.3...0.3.0

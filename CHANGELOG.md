@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [unreleased]
+
 ## [0.4.0] – 2024-09-17
 
 ### Fixed
@@ -74,6 +76,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial public release
 
+[unreleased]: https://github.com/koppor/plantuml/compare/0.4.0...main
 [0.4.0]: https://github.com/koppor/plantuml/compare/0.3.2...0.4.0
 [0.3.2]: https://github.com/koppor/plantuml/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/koppor/plantuml/compare/0.3.0...0.3.1

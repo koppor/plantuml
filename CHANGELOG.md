@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- Updated command-line parameters for PlantUML to fit PlantUML v1.2023.0 changes. [#33](https://github.com/koppor/plantuml/pull/33)
+- Updated command-line parameters for PlantUML to fit PlantUML v1.2023.0 changes. [#36](https://github.com/koppor/plantuml/issues/36)
 - Updated command-line parameters for Inkscape. [#33](https://github.com/koppor/plantuml/pull/33)
 - Works if multiple diagrams are present. [#15](https://github.com/koppor/plantuml/issues/15), [#17](https://github.com/koppor/plantuml/issues/17)
 

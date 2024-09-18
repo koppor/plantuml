@@ -44,13 +44,11 @@ jobs:
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-asl-1.2024.6.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
-      - uses: awalsh128/cache-apt-pkgs-action@latest
+      - uses: bscott-zebra/cache-apt-pkgs-action@bdb5bbaae8f11b3e4e63cf78e303ac1519dcff7f
         with:
           packages: graphviz inkscape
-          version: 1.0
+          version: 1.1
           execute_install_scripts: true
-      - run: dpkg -L inkscape
-      - run: which inkscape
       - name: Install TeX Live
         uses: zauguin/install-texlive@v3
         with:

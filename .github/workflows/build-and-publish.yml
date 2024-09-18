@@ -49,8 +49,6 @@ jobs:
           packages: graphviz inkscape
           version: 1.1
           execute_install_scripts: true
-      - run: dpkg -L inkscape
-      - run: which inkscape
       - name: Install TeX Live
         uses: zauguin/install-texlive@v3
         with:

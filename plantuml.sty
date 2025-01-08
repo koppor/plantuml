@@ -54,8 +54,14 @@
 
 \ifluatex
   \RequirePackage{luacode}
+   \directlua{
+      local lfs = require("lfs")
+      local currentdir = lfs.currentdir()
+      tex.sprint("\\newcommand\\CurrentDirectory{" .. currentdir .. "/}")
+    }
 \else
   \RequirePackage[usefamily=bash]{pythontex}
+  \newcommand{\CurrentDirectory}{}
 \fi
 
 \makeatletter
@@ -74,7 +80,7 @@
     }
   \fi
   \NewDocumentEnvironment{plantuml}{}{%
-    \VerbatimOut{\PlantUMLJobname-plantuml.txt}}
+    \VerbatimOut{\CurrentDirectory\PlantUMLJobname-plantuml.txt}}
   {%
     \endVerbatimOut
     \ifluatex

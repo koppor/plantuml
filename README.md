@@ -102,14 +102,14 @@ Car -- Person : < owns
 
 Your latex distribution should take care.
 
-For manual installation, copy `plantuml.*` to your local texmf folder in the subdirectoy `tex/latex/plantuml`.
+For manual installation, copy `plantuml.*` to your local `texmf` folder in the sub directoy `tex/latex/plantuml`.
 See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for the concrete location of the folder on your system.
 
 ## Development
 
 The release is built using [GitHub Actions](https://github.com/features/actions) ([workflow file](https://github.com/koppor/plantuml/blob/master/.github/workflows/build-and-publish.yml)) using [`release.sh`](release.sh).
 
-Release prepration:
+Release preparation:
 
 1. Adapt copyright year (line 1) as well as date and version number (line 6) in `plantuml.sty`.
 2. Adapt `CHANGELOG.md`.

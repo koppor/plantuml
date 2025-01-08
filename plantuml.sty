@@ -56,7 +56,7 @@
   \RequirePackage{luacode}
    \directlua{
       local lfs = require("lfs")
-      local currentdir = lfs.currentdir()
+      local currentdir = lfs.currentdir():gsub("\\", "/")
       tex.sprint("\\newcommand\\CurrentDirectory{" .. currentdir .. "/}")
     }
 \else

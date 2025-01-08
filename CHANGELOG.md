@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## Fixed
+
+- Fixed overleaf compilation. [#34](https://github.com/koppor/plantuml/issues/34)
+
 ## [0.4.0] – 2024-09-17
 
 ### Fixed

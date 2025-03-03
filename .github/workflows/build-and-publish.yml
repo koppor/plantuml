@@ -44,7 +44,7 @@ jobs:
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-asl-1.2024.6.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
-      - uses: bscott-zebra/cache-apt-pkgs-action@bdb5bbaae8f11b3e4e63cf78e303ac1519dcff7f
+      - uses: bscott-zebra/cache-apt-pkgs-action@latest
         with:
           packages: graphviz inkscape
           version: 1.1

@@ -34,17 +34,17 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/plantuml
-          key: plantuml-asl-1.2024.6.jar
+          key: plantuml-1.2025.1.jar
       - name: wget PlantUML jar
         if: steps.cache-plantuml.outputs.cache-hit != 'true'
         run: |
           mkdir /tmp/plantuml
           cd /tmp/plantuml
-          wget https://github.com/plantuml/plantuml/releases/download/v1.2024.6/plantuml-asl-1.2024.6.jar
+          wget https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
       - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-asl-1.2024.6.jar" >> "$GITHUB_ENV"
+        run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
-      - uses: bscott-zebra/cache-apt-pkgs-action@latest
+      - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: graphviz inkscape
           version: 1.1

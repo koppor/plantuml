@@ -50,7 +50,7 @@ jobs:
           version: 1.1
           execute_install_scripts: true
       - name: Install TeX Live
-        uses: zauguin/install-texlive@v3
+        uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
       - name: example-minimal

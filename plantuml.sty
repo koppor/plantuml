@@ -26,9 +26,18 @@
 
 \newcounter{PlantUmlFigureNumberSVG}
 \def\UMLcountUp{\stepcounter{PlantUmlFigureNumberSVG} \def\PlantUMLJobname{PlantUML\thePlantUmlFigureNumberSVG}}
-% \jobname has an encoding issue if the .tex filename includes a multibyte string.
-% One needs to redefine PlantUMLJobname to fix it
-\def\PlantUMLJobname{\jobname\thePlantUmlFigureNumberSVG}
+
+% Code snippet from Joseph Wright (https://ctan.org/home/josephwright)
+% Source: https://tex.stackexchange.com/questions/418670/avoid-quotation-marks-when-using-jobname-or-currfilename
+% according to https://tex.stackexchange.com/users/73/joseph-wright, his code on the site is placed in the public domain
+\newcommand*{\myjobname}{}
+\newcommand*{\setmyjobname}{\expanded{\noexpand\setmyjobnameaux
+  \jobname"\jobname"\relax}}
+\newcommand*{\setmyjobnameaux}{}
+\def\setmyjobnameaux#1"#2"#3\relax{\def\myjobname{#2}}
+\setmyjobname
+
+\def\PlantUMLJobname{\myjobname\thePlantUmlFigureNumberSVG}
 
 \ExplSyntaxOn
 \keys_define:nn { plantuml } {
@@ -80,7 +89,7 @@
     }
   \fi
   \NewDocumentEnvironment{plantuml}{}{%
-    \VerbatimOut{\CurrentDirectory\PlantUMLJobname-plantuml.txt}}
+    \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
   {%
     \endVerbatimOut
     \ifluatex
@@ -92,7 +101,7 @@
       }
     \else
       \stepcounter{PlantUmlFigureNumber}
-      %TODO: Execute pyhton here
+      %TODO: Execute python here
       \typeout{*** plantuml only works with lualatex ***}
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{

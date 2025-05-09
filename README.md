@@ -53,7 +53,7 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 \usepackage{graphics}
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
-  inkscape #1 --export-filename=\OutputFile
+  inkscape "#1" --export-filename="\OutputFile"
 }
 \usepackage[output=svg]{plantuml}
 \begin{document}

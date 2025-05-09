@@ -7,7 +7,7 @@
 % We just include the SVG as is.
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{%
-  inkscape #1 --export-filename=\OutputFile
+  inkscape "#1" --export-filename="\OutputFile"
 }
 
 \usepackage[output=svg]{plantuml}

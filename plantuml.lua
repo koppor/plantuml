@@ -31,7 +31,7 @@ function convertPlantUmlToTikz(jobname, mode)
   -- delete generated file to ensure they are really recreated
   os.remove(plantUmlTargetFilename)
 
-  cmd = cmd .. " " .. plantUmlSourceFilename
+  cmd = cmd .. [[ "]] .. plantUmlSourceFilename .. [["]]
   texio.write_nl(cmd)
   local handle,error = io.popen(cmd)
   if not handle then

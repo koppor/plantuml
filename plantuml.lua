@@ -44,7 +44,7 @@ function convertPlantUmlToTikz(jobname, mode)
   os.remove(plantUmlTargetFilename)
 
   texio.write("Executing PlantUML... ")
-  local cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -t"
+  local cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -pipe -t"
   if (mode == "latex") then
     cmd = cmd .. "latex:nopreamble"
     -- plantuml has changed output format in https://github.com/plantuml/plantuml/pull/1237
@@ -54,7 +54,7 @@ function convertPlantUmlToTikz(jobname, mode)
   end
 
 
-  cmd = cmd .. [[ "]] .. plantUmlSourceFilename .. [["]]
+  cmd = cmd .. [[ < "]] .. plantUmlSourceFilename .. [[" > "]] .. plantUmlTargetFilename .. [["]]
   texio.write_nl(cmd)
   local handle,error = io.popen(cmd)
   if not handle then

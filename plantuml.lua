@@ -18,6 +18,31 @@ function convertPlantUmlToTikz(jobname, mode)
     return
   end
 
+  -- check if plantUmlSourceFilename is the same as sourceCacheFilename, if yes, skip executing PlantUML
+  local sourceCacheFilename = plantUmlSourceFilename .. "." .. mode .. ".cache"
+  local sourceCacheHandle = io.open(sourceCacheFilename, "r")
+  if sourceCacheHandle then
+    texio.write_nl("Cache \"" .. sourceCacheFilename .. "\" exists.")
+    local sourceCacheContent = sourceCacheHandle:read("*a")
+    io.close(sourceCacheHandle)
+
+    local sourceHandle = io.open(plantUmlSourceFilename, "r")
+    if not sourceHandle then
+      texio.write_nl("Error: Could not open source file for reading.")
+    end
+    local sourceContent = sourceHandle:read("*a")
+    io.close(sourceHandle)
+
+    if sourceContent == sourceCacheContent then
+      texio.write_nl("Source \"" .. plantUmlSourceFilename .. "\" is unchanged, skipping PlantUML execution.")
+      return
+    else
+      texio.write_nl("Source \"" .. plantUmlSourceFilename .. "\" has changed. ")
+      -- delete generated file to ensure they are really recreated
+      os.remove(plantUmlTargetFilename)
+    end
+  end
+
   texio.write("Executing PlantUML... ")
   local cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -t"
   if (mode == "latex") then
@@ -28,8 +53,6 @@ function convertPlantUmlToTikz(jobname, mode)
     cmd = cmd .. mode
   end
 
-  -- delete generated file to ensure they are really recreated
-  os.remove(plantUmlTargetFilename)
 
   cmd = cmd .. [[ "]] .. plantUmlSourceFilename .. [["]]
   texio.write_nl(cmd)
@@ -47,5 +70,20 @@ function convertPlantUmlToTikz(jobname, mode)
     handle:write("Error during latex code generation")
     io.close(handle)
     return
+  else
+    -- cache plantUmlSourceFilename for next run
+    local sourceHandle = io.open(plantUmlSourceFilename, "r")
+    if sourceHandle then
+      local cacheHandle = io.open(sourceCacheFilename, "w")
+      if cacheHandle then
+      cacheHandle:write(sourceHandle:read("*a"))
+      io.close(cacheHandle)
+      else
+      texio.write_nl("Error: Could not open cache file for writing.")
+      end
+      io.close(sourceHandle)
+    else
+      texio.write_nl("Error: Could not open source file for reading.")
+    end
   end
 end

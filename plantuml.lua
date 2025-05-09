@@ -38,10 +38,10 @@ function convertPlantUmlToTikz(jobname, mode)
       return
     else
       texio.write_nl("Source \"" .. plantUmlSourceFilename .. "\" has changed. ")
-      -- delete generated file to ensure they are really recreated
-      os.remove(plantUmlTargetFilename)
     end
   end
+  -- delete generated file to ensure they are really recreated
+  os.remove(plantUmlTargetFilename)
 
   texio.write("Executing PlantUML... ")
   local cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -t"
@@ -72,6 +72,7 @@ function convertPlantUmlToTikz(jobname, mode)
     return
   else
     -- cache plantUmlSourceFilename for next run
+    texio.write_nl("Caching source file \"" .. plantUmlSourceFilename .. "\" to \"" .. sourceCacheFilename .. "\".")
     local sourceHandle = io.open(plantUmlSourceFilename, "r")
     if sourceHandle then
       local cacheHandle = io.open(sourceCacheFilename, "w")

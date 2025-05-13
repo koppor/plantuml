@@ -102,7 +102,7 @@ Car -- Person : < owns
 
 Your latex distribution should take care.
 
-For manual installation, copy `plantuml.*` to your local `texmf` folder in the sub directoy `tex/latex/plantuml`.
+For manual installation, copy `plantuml.*` to your local `texmf` folder in the sub directory `tex/latex/plantuml`.
 See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for the concrete location of the folder on your system.
 
 ## Development

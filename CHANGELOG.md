@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.6.0] - 2025-05-13
 
 ### Fixed
 
-- Fixed infinite loop when using latexmk with SVG output, by executing PlantUML only if the code is changed. [#49](https://github.com/koppor/plantuml/pull/49)
+- Fixed infinite loop when using `latexmk` with SVG output, by executing PlantUML only if the code is changed. [#49](https://github.com/koppor/plantuml/pull/49)
 - Fixed Incorrect file name when file name is specified after `@startuml`. [#49](https://github.com/koppor/plantuml/pull/49#issuecomment-2867843869)
 
 ## [0.5.1] - 2025-05-09
@@ -93,6 +93,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial public release
 
+[0.6.0]: https://github.com/koppor/plantuml/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/koppor/plantuml/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/koppor/plantuml/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/koppor/plantuml/compare/0.3.2...0.4.0

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: release.sh
         # We need java, pandoc, and more, which is not provided directly by the image
         uses: dante-ev/latex-action@edge
@@ -43,7 +43,7 @@ jobs:
           wget https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: graphviz inkscape

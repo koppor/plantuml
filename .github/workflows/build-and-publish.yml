@@ -53,6 +53,8 @@ jobs:
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
+      - run: pwd
+      - run: ls -la
       - name: example-minimal
         run: lualatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex

@@ -18,7 +18,7 @@ jobs:
         uses: dante-ev/latex-action@edge
         with:
           entrypoint: ./release.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ctan
           path: plantuml.tar.gz
@@ -77,7 +77,7 @@ jobs:
           build_dir: build/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: github.ref != 'refs/heads/main'
         with:
           name: gh-pages

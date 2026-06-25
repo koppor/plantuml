@@ -1,0 +1,24 @@
+name: Lint changelog
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+jobs:
+  heylogs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v6
+      - name: Lint CHANGELOG.md with heylogs
+        uses: jbangdev/jbang-action@v0.139.3
+        with:
+          script: com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin
+          scriptargs: "check --format github-actions CHANGELOG.md"

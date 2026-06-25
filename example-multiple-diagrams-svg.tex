@@ -4,7 +4,7 @@
 
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{%
-  inkscape "#1" --export-filename="\OutputFile"
+  inkscape "#1" --export-text-to-path --export-filename="\OutputFile"
 }
 
 \usepackage[output=svg]{plantuml}

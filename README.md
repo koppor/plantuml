@@ -55,7 +55,7 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 \usepackage{graphics}
 \usepackage{epstopdf}
 \epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{
-  inkscape "#1" --export-filename="\OutputFile"
+  inkscape "#1" --export-text-to-path --export-filename="\OutputFile"
 }
 \usepackage[output=svg]{plantuml}
 \begin{document}

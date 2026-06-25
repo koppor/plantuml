@@ -1,12 +1,14 @@
 # plantuml [![CTAN](https://img.shields.io/badge/CTAN-plantuml-blue.svg?style=flat-square)](https://ctan.org/pkg/plantuml)
 
-> A LuaLaTeX package for PlantUML in LaTeX
+> A LuaLaTeX and pdfLaTeX package for PlantUML in LaTeX
 
 [PlantUML](http://plantuml.com/) is a program which transforms text into UML diagrams.
 This package allows for embedding PlantUML diagrams using the PlantUML source.
 
-Currently, this project runs with [lualatex](http://www.luatex.org/) only.
-Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current state of affairs for support pdflatex.
+It works with both [lualatex](http://www.luatex.org/) and [pdflatex](https://www.tug.org/applications/pdftex/).
+Both engines need `-shell-escape` so that the package can call PlantUML.
+See [docs/decisions/0001-support-pdflatex-via-shell-escape.md](docs/decisions/0001-support-pdflatex-via-shell-escape.md)
+for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.com/koppor/plantuml/issues/1)).
 
 ## Preconditions
 
@@ -15,7 +17,7 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 2. Windows: Environment variable `GRAPHVIZ_DOT` set to the location of `dot.exe`.
    Example: `C:\Program Files (x86)\Graphviz2.38\bin\dot.exe`.
    You can install graphviz using `choco install graphviz`.
-3. lualatex available with command line parameter `-shell-escape` included.
+3. lualatex or pdflatex available, called with the command line parameter `-shell-escape`.
 4. In case you want to have the images as PDFs (and not using TikZ or PNG), ensure that `inkscape.exe` and `pdfcrop` are in your path.
    You can get inkscape using `choco install inkscape`.
    `pdfcrop` should be part of your latex distribution.
@@ -38,7 +40,7 @@ Check [issue #1](https://github.com/koppor/plantuml/issues/1) for the current st
 \end{document}
 ```
 
-**Compilation:** `lualatex -shell-escape example-minimal`
+**Compilation:** `lualatex -shell-escape example-minimal` (or `pdflatex -shell-escape example-minimal`)
 
 **Result:**
 
@@ -92,7 +94,7 @@ Car -- Person : < owns
 \end{document}
 ```
 
-**Compilation:** `lualatex -shell-escape example-class-relations`
+**Compilation:** `lualatex -shell-escape example-class-relations` (or `pdflatex -shell-escape example-class-relations`)
 
 **Result:**
 

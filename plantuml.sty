@@ -11,7 +11,13 @@
 
 % Enable checking for active -shell-escape
 % Source: https://tex.stackexchange.com/a/88620/9075
+% pdftexcmds also provides the engine-agnostic helpers used by the pdflatex
+% path below: \pdf@filemdfivesum, \pdf@strcmp, and \pdf@filesize.
 \RequirePackage{pdftexcmds}
+
+% Robust \ifluatex (and friends) across engines, needed to branch between the
+% LuaTeX and pdfTeX code paths.
+\RequirePackage{iftex}
 
 % Prepare writing contents of a self-defined environment to a file
 % Source: https://tex.stackexchange.com/a/130298/9075
@@ -59,8 +65,6 @@
 \let\PlantUmlMode\l_plantuml_mode
 \ExplSyntaxOff
 
-\newcounter{PlantUmlFigureNumber}
-
 \ifluatex
   \RequirePackage{luacode}
    \directlua{
@@ -69,11 +73,114 @@
       tex.sprint("\\newcommand\\CurrentDirectory{" .. currentdir .. "/}")
     }
 \else
-  \RequirePackage[usefamily=bash]{pythontex}
+  % Non-Lua engines (e.g. pdflatex) drive PlantUML directly via shell escape
+  % (see the \plantuml@... helpers below). Everything is relative to the current
+  % working directory, so no directory prefix is required.
   \newcommand{\CurrentDirectory}{}
 \fi
 
 \makeatletter
+
+% --- Non-Lua (e.g. pdflatex) PlantUML driver ----------------------------------
+% The LuaTeX path (plantuml.lua) shells out with io.popen, reads PLANTUML_JAR
+% with os.getenv and checks files with lfs. For pdfTeX we reproduce the same
+% behaviour with engine primitives: \write18 for execution, kpsewhich (run via a
+% piped \openin) to read PLANTUML_JAR cross-platform, and the MD5/file helpers
+% from pdftexcmds to skip re-running PlantUML when the source is unchanged (the
+% same caching that plantuml.lua does, which avoids latexmk rebuild loops).
+\ifluatex\else
+  \newread\plantuml@stream
+  \newwrite\plantuml@cacheout
+  \let\plantuml@jar\@empty
+
+  % \plantuml@readline{<file>}{<cs>}: define <cs> (globally) to the first line of
+  % <file>, or to empty if the file is absent. \endlinechar=-1 strips the EOL.
+  \newcommand{\plantuml@readline}[2]{%
+    \begingroup
+      \endlinechar=-1\relax
+      \openin\plantuml@stream=#1\relax
+      \ifeof\plantuml@stream
+        \global\def#2{}%
+      \else
+        \readline\plantuml@stream to \plantuml@line
+        \global\let#2\plantuml@line
+      \fi
+      \closein\plantuml@stream
+    \endgroup
+  }
+
+  % \plantuml@readjar: read the PLANTUML_JAR environment variable into
+  % \plantuml@jar, cross-platform, via kpsewhich. Needs full shell escape, so it
+  % is only called from the shell-escape-enabled branch below.
+  \newcommand*{\plantuml@readjar}{%
+    \begingroup
+      \endlinechar=-1\relax
+      \openin\plantuml@stream=|"kpsewhich --var-value=PLANTUML_JAR"\relax
+      \ifeof\plantuml@stream
+        \global\let\plantuml@jar\@empty
+      \else
+        \readline\plantuml@stream to \plantuml@line
+        \global\let\plantuml@jar\plantuml@line
+      \fi
+      \closein\plantuml@stream
+    \endgroup
+    \ifx\plantuml@jar\@empty
+      \PackageWarning{plantuml}{Environment variable PLANTUML_JAR not set}%
+    \fi
+  }
+
+  % \plantuml@convert{<jobname>}{<mode>}: run PlantUML on <jobname>-plantuml.txt,
+  % producing <jobname>-plantuml.{tex|<mode>}. The run is skipped when the source
+  % is byte-for-byte identical to the previously converted one (MD5 cache).
+  \newcommand{\plantuml@convert}[2]{%
+    \begingroup
+      \edef\plantuml@src{#1-plantuml.txt}%
+      \ifthenelse{\equal{#2}{latex}}{%
+        % PlantUML emits the file with a .tex extension since v1.2023.0.
+        \edef\plantuml@tgt{#1-plantuml.tex}%
+        \def\plantuml@topt{latex:nopreamble}%
+      }{%
+        \edef\plantuml@tgt{#1-plantuml.#2}%
+        \def\plantuml@topt{#2}%
+      }%
+      \edef\plantuml@cache{\plantuml@src.#2.cache}%
+      \IfFileExists{\plantuml@src}{%
+        \ifx\plantuml@jar\@empty
+          \PackageWarning{plantuml}{PLANTUML_JAR not set; cannot run PlantUML}%
+        \else
+          \edef\plantuml@srcsum{\pdf@filemdfivesum{\plantuml@src}}%
+          \plantuml@readline{\plantuml@cache}{\plantuml@cachedsum}%
+          \ifnum\pdf@strcmp{\plantuml@srcsum}{\plantuml@cachedsum}=0\relax
+            \typeout{[plantuml] \plantuml@src\space unchanged; skipping PlantUML.}%
+          \else
+            \edef\plantuml@cmd{%
+              java -Djava.awt.headless=true -jar "\plantuml@jar"%
+              \space -charset UTF-8 -pipe -t\plantuml@topt
+              \space < "\plantuml@src" > "\plantuml@tgt"}%
+            \typeout{[plantuml] \plantuml@cmd}%
+            \immediate\write18{\plantuml@cmd}%
+            \IfFileExists{\plantuml@tgt}{%
+              \ifnum\pdf@filesize{\plantuml@tgt}>0\relax
+                % Cache the source MD5 so the next run can skip PlantUML.
+                \immediate\openout\plantuml@cacheout=\plantuml@cache\relax
+                \immediate\write\plantuml@cacheout{\plantuml@srcsum}%
+                \immediate\closeout\plantuml@cacheout
+              \else
+                \PackageWarning{plantuml}{PlantUML produced an empty \plantuml@tgt}%
+              \fi
+            }{%
+              \PackageWarning{plantuml}{PlantUML did not generate \plantuml@tgt}%
+            }%
+          \fi
+        \fi
+      }{%
+        \PackageWarning{plantuml}{Source \plantuml@src\space does not exist}%
+      }%
+    \endgroup
+  }
+\fi
+% ------------------------------------------------------------------------------
+
 \ifcase\pdf@shellescape
   \message{No shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.}
   \newenvironment{plantuml}{%
@@ -87,6 +194,8 @@
         texio.write_nl("Environment variable PLANTUML_JAR not set.")
       end
     }
+  \else
+    \plantuml@readjar
   \fi
   \NewDocumentEnvironment{plantuml}{}{%
     \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
@@ -100,9 +209,7 @@
         convertPlantUmlToTikz(jobname, plantUmlMode)
       }
     \else
-      \stepcounter{PlantUmlFigureNumber}
-      %TODO: Execute python here
-      \typeout{*** plantuml only works with lualatex ***}
+      \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{
       \begin{adjustbox}{max width=\linewidth}

@@ -2,8 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+### Added
+
+- Added support for `pdflatex`. PlantUML is now driven directly via shell escape, mirroring the LuaLaTeX path (same `plantuml.jar` invocation and MD5-based source caching). [#1](https://github.com/koppor/plantuml/issues/1)
+- Added [architecture decision record 0001](docs/decisions/0001-support-pdflatex-via-shell-escape.md) explaining why pdfLaTeX is driven via shell escape rather than via `hvextern`, `pythontex`, or `bashful`. [#1](https://github.com/koppor/plantuml/issues/1)
+
+### Removed
+
+- Removed the unused, never-wired-up `pythontex` dependency from the non-LuaTeX code path. [#1](https://github.com/koppor/plantuml/issues/1)
 
 ## [0.6.0] - 2025-05-13
 
@@ -24,7 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed overleaf compilation. [#34](https://github.com/koppor/plantuml/issues/34)
 
-## [0.4.0] – 2024-09-17
+## [0.4.0] - 2024-09-17
 
 ### Fixed
 
@@ -32,7 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated command-line parameters for Inkscape. [#33](https://github.com/koppor/plantuml/pull/33)
 - Works if multiple diagrams are present. [#15](https://github.com/koppor/plantuml/issues/15), [#17](https://github.com/koppor/plantuml/issues/17)
 
-## [0.3.2] – 2023-05-12
+## [0.3.2] - 2023-05-12
 
 ### Changed
 
@@ -40,21 +51,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   introduced in PlantUML v1.2023.0. This change is not backwards compatible with
   older versions of PlantUML. [#29](https://github.com/koppor/plantuml/pull/29)
 
-## [0.3.1] – 2020-05-19
+## [0.3.1] - 2020-05-19
 
 ### Fixed
 
 - Added `-Djava.awt.headless=true` parameter to the call of `plantuml.jar` so it runs silently without interference
  the current focus
 
-## [0.3.0] – 2019-09-23
+## [0.3.0] - 2019-09-23
 
 ### Added
 
 - Added support for UTF-8 filenames.
 - Added `example-component-diagram.tex`. Refs [#9](https://github.com/koppor/plantuml/issues/9).
 
-## [0.2.3] – 2018-06-04
+## [0.2.3] - 2018-06-04
 
 ### Added
 
@@ -62,22 +73,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 
-- Removed `\usepackage{aeguill}` as 1) PlantUML seems not to rely on it any more and 2) [it is obsolete and should not be used anymore](https://tex.stackexchange.com/a/5901/9075).
+- Removed `\usepackage{aeguill}` as (1) PlantUML seems not to rely on it any more and (2) [it is obsolete and should not be used anymore](https://tex.stackexchange.com/a/5901/9075).
 
-## [0.2.2] – 2018-03-22
+## [0.2.2] - 2018-03-22
 
 ### Changed
 
 - Added version number in generated `plantuml.pdf`.
 - Do not strip down `README.md` for CTAN anymore and provide "*.png" for generation of `plantuml.pdf`.
 
-## [0.2.1] – 2018-03-21
+## [0.2.1] - 2018-03-21
 
 ### Fixed
 
 - Added short version of `README.md` to CTAN distribution again, because of [CTAN rules](https://mirror.informatik.hs-fulda.de/tex-archive/help/ctan/CTAN-upload-addendum.html#readme).
 
-## [0.2.0] – 2018-03-20
+## [0.2.0] - 2018-03-20
 
 ### Changed
 
@@ -89,10 +100,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - `release.sh` for creating a release.
 
-## 0.1.0 – 2018-03-08
+## [0.1.0] - 2018-03-08
 
-Initial public release
+### Added
 
+- Initial public release
+
+[Unreleased]: https://github.com/koppor/plantuml/compare/0.6.0...HEAD
 [0.6.0]: https://github.com/koppor/plantuml/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/koppor/plantuml/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/koppor/plantuml/compare/0.4.0...0.5.0
@@ -104,5 +118,6 @@ Initial public release
 [0.2.2]: https://github.com/koppor/plantuml/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/koppor/plantuml/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/koppor/plantuml/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/koppor/plantuml/releases/tag/0.1.0
 
 <!-- markdownlint-disable-file MD024 -->

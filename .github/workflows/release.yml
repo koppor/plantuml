@@ -1,4 +1,4 @@
-name: Build
+name: Release
 on:
   pull_request:
   push:
@@ -31,20 +31,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Cache PlantUML jar
-        id: cache-plantuml
-        uses: actions/cache@v5
+      - name: Download PlantUML jar (cached)
+        id: plantuml-jar
+        uses: ethanjli/cached-download-action@v0.1.4
         with:
-          path: /tmp/plantuml
-          key: plantuml-1.2025.1.jar
-      - name: wget PlantUML jar
-        if: steps.cache-plantuml.outputs.cache-hit != 'true'
-        run: |
-          mkdir /tmp/plantuml
-          cd /tmp/plantuml
-          wget https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
+          url: https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
+          destination: /tmp/plantuml/plantuml-1.2025.1.jar
       - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
+        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:
@@ -76,20 +70,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Cache PlantUML jar
-        id: cache-plantuml
-        uses: actions/cache@v5
+      - name: Download PlantUML jar (cached)
+        id: plantuml-jar
+        uses: ethanjli/cached-download-action@v0.1.4
         with:
-          path: /tmp/plantuml
-          key: plantuml-1.2025.1.jar
-      - name: wget PlantUML jar
-        if: steps.cache-plantuml.outputs.cache-hit != 'true'
-        run: |
-          mkdir /tmp/plantuml
-          cd /tmp/plantuml
-          wget https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
+          url: https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
+          destination: /tmp/plantuml/plantuml-1.2025.1.jar
       - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
+        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:

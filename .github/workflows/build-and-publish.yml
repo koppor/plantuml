@@ -46,7 +46,7 @@ jobs:
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6
-      - uses: awalsh128/cache-apt-pkgs-action@latest
+      - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:
           packages: graphviz inkscape
           version: 1.1
@@ -91,7 +91,7 @@ jobs:
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6
-      - uses: awalsh128/cache-apt-pkgs-action@latest
+      - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:
           packages: graphviz inkscape
           version: 1.1

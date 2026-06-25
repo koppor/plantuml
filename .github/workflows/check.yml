@@ -26,12 +26,24 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+      # The check runs against the *latest* PlantUML so it catches breakage with
+      # new releases. The cache key is the resolved version, so it refreshes
+      # automatically whenever PlantUML publishes a new release.
+      - name: Resolve latest PlantUML version
+        id: plantuml-version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "Latest PlantUML: ${tag#v}"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@v0.1.4
         with:
-          url: https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
-          destination: /tmp/plantuml/plantuml-1.2025.1.jar
+          url: https://github.com/plantuml/plantuml/releases/download/v${{ steps.plantuml-version.outputs.version }}/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          destination: /tmp/plantuml/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6

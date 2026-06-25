@@ -62,6 +62,8 @@ jobs:
         run: pdflatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
         run: pdflatex -shell-escape example-class-relations--latex
+      - name: example-class-visibility
+        run: pdflatex -shell-escape example-class-visibility
       - name: example-class-relations--svg
         run: pdflatex -shell-escape example-class-relations--svg
       - name: example-component-diagram
@@ -110,6 +112,8 @@ jobs:
         run: lualatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
         run: lualatex -shell-escape example-class-relations--latex
+      - name: example-class-visibility
+        run: lualatex -shell-escape example-class-visibility
       - name: example-class-relations--svg
         run: lualatex -shell-escape example-class-relations--svg
       - name: example-component-diagram

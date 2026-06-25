@@ -1,0 +1,22 @@
+% Demonstrates class member visibility, including the protected marker "#".
+%
+% The diagram body is read verbatim, so write PlantUML exactly as in a .puml
+% file -- including characters LaTeX treats specially, such as "#". Write them
+% as-is; do NOT escape them (e.g. use "#balance", not "\#balance"). See #24.
+\documentclass{scrartcl}
+\usepackage{plantuml}
+\begin{document}
+\begin{plantuml}
+@startuml
+class BankAccount {
+  +owner : String
+  #balance : double
+  -pin : int
+  ~auditTrail : List
+  +deposit(amount : double)
+  #applyInterest()
+  -validatePin(pin : int)
+}
+@enduml
+\end{plantuml}
+\end{document}

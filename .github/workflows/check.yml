@@ -62,6 +62,7 @@ jobs:
           for example in \
             example-minimal \
             example-class-relations--latex \
+            example-class-visibility \
             example-class-relations--svg \
             example-component-diagram \
             example-multiple-diagrams-svg; do

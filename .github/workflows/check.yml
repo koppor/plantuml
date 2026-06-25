@@ -60,11 +60,11 @@ jobs:
         run: |
           mkdir -p out
           for example in \
-            example-minimal \
             example-class-relations--latex \
-            example-class-visibility \
             example-class-relations--svg \
+            example-class-visibility \
             example-component-diagram \
+            example-minimal \
             example-multiple-diagrams-svg; do
             echo "::group::${{ matrix.engine }} -output-directory=out $example"
             ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error -output-directory=out "$example"

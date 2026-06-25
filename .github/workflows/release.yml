@@ -58,16 +58,16 @@ jobs:
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
-      - name: example-minimal
-        run: pdflatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
         run: pdflatex -shell-escape example-class-relations--latex
-      - name: example-class-visibility
-        run: pdflatex -shell-escape example-class-visibility
       - name: example-class-relations--svg
         run: pdflatex -shell-escape example-class-relations--svg
+      - name: example-class-visibility
+        run: pdflatex -shell-escape example-class-visibility
       - name: example-component-diagram
         run: pdflatex -shell-escape example-component-diagram
+      - name: example-minimal
+        run: pdflatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: pdflatex -shell-escape example-multiple-diagrams-svg
       - uses: actions/upload-artifact@v6
@@ -108,16 +108,16 @@ jobs:
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
-      - name: example-minimal
-        run: lualatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
         run: lualatex -shell-escape example-class-relations--latex
-      - name: example-class-visibility
-        run: lualatex -shell-escape example-class-visibility
       - name: example-class-relations--svg
         run: lualatex -shell-escape example-class-relations--svg
+      - name: example-class-visibility
+        run: lualatex -shell-escape example-class-visibility
       - name: example-component-diagram
         run: lualatex -shell-escape example-component-diagram
+      - name: example-minimal
+        run: lualatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: lualatex -shell-escape example-multiple-diagrams-svg
       - name: Gather build artifacts

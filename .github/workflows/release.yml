@@ -1,4 +1,4 @@
-name: Build
+name: Release
 on:
   pull_request:
   push:
@@ -31,20 +31,23 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Cache PlantUML jar
-        id: cache-plantuml
-        uses: actions/cache@v5
-        with:
-          path: /tmp/plantuml
-          key: plantuml-1.2025.1.jar
-      - name: wget PlantUML jar
-        if: steps.cache-plantuml.outputs.cache-hit != 'true'
+      - name: Resolve latest PlantUML version
+        id: plantuml-version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir /tmp/plantuml
-          cd /tmp/plantuml
-          wget https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
+          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "Latest PlantUML: ${tag#v}"
+      - name: Download PlantUML jar (cached)
+        id: plantuml-jar
+        uses: ethanjli/cached-download-action@v0.1.4
+        with:
+          url: https://github.com/plantuml/plantuml/releases/download/v${{ steps.plantuml-version.outputs.version }}/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          destination: /tmp/plantuml/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
       - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
+        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:
@@ -76,20 +79,23 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Cache PlantUML jar
-        id: cache-plantuml
-        uses: actions/cache@v5
-        with:
-          path: /tmp/plantuml
-          key: plantuml-1.2025.1.jar
-      - name: wget PlantUML jar
-        if: steps.cache-plantuml.outputs.cache-hit != 'true'
+      - name: Resolve latest PlantUML version
+        id: plantuml-version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir /tmp/plantuml
-          cd /tmp/plantuml
-          wget https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar
+          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "Latest PlantUML: ${tag#v}"
+      - name: Download PlantUML jar (cached)
+        id: plantuml-jar
+        uses: ethanjli/cached-download-action@v0.1.4
+        with:
+          url: https://github.com/plantuml/plantuml/releases/download/v${{ steps.plantuml-version.outputs.version }}/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          destination: /tmp/plantuml/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
       - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=/tmp/plantuml/plantuml-1.2025.1.jar" >> "$GITHUB_ENV"
+        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v6
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:

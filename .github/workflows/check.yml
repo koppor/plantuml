@@ -1,0 +1,76 @@
+name: Check
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+jobs:
+  output-directory:
+    # Regression test for #27: PlantUML must work when LaTeX is run with
+    # -output-directory. Compiles every example into ./out with both engines and
+    # checks that the resulting PDF lands in that directory.
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [lualatex, pdflatex]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      # The check runs against the *latest* PlantUML so it catches breakage with
+      # new releases. The cache key is the resolved version, so it refreshes
+      # automatically whenever PlantUML publishes a new release.
+      - name: Resolve latest PlantUML version
+        id: plantuml-version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "Latest PlantUML: ${tag#v}"
+      - name: Download PlantUML jar (cached)
+        id: plantuml-jar
+        uses: ethanjli/cached-download-action@v0.1.4
+        with:
+          url: https://github.com/plantuml/plantuml/releases/download/v${{ steps.plantuml-version.outputs.version }}/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          destination: /tmp/plantuml/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+          cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
+      - name: Set PLANTUML_JAR
+        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v6
+      - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
+        with:
+          packages: graphviz inkscape
+          version: 1.1
+          execute_install_scripts: true
+      - name: Install TeX Live
+        uses: zauguin/install-texlive@v4
+        with:
+          package_file: tl_packages
+      - name: Compile examples with -output-directory
+        run: |
+          mkdir -p out
+          for example in \
+            example-minimal \
+            example-class-relations--latex \
+            example-class-relations--svg \
+            example-component-diagram \
+            example-multiple-diagrams-svg; do
+            echo "::group::${{ matrix.engine }} -output-directory=out $example"
+            ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error -output-directory=out "$example"
+            echo "::endgroup::"
+            test -f "out/$example.pdf" || { echo "::error::out/$example.pdf was not produced"; exit 1; }
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: output-directory-${{ matrix.engine }}
+          path: out/*.pdf

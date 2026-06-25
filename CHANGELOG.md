@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added support for `pdflatex`. PlantUML is now driven directly via shell escape, mirroring the LuaLaTeX path (same `plantuml.jar` invocation and MD5-based source caching). [#1](https://github.com/koppor/plantuml/issues/1)
 - Added [architecture decision record 0001](docs/decisions/0001-support-pdflatex-via-shell-escape.md) explaining why pdfLaTeX is driven via shell escape rather than via `hvextern`, `pythontex`, or `bashful`. [#1](https://github.com/koppor/plantuml/issues/1)
 
+### Fixed
+
+- Fixed `lualatex` failing with `I can't write on file '…-plantuml.txt'` under the paranoid `openout_any=p` setting (the default of local TeX Live and MiKTeX installations). The generated source file is now written with a relative path whenever possible, falling back to the absolute working directory only when the write is redirected (e.g. by Overleaf's output directory), so the Overleaf fix keeps working. [#50](https://github.com/koppor/plantuml/issues/50), [#42](https://github.com/koppor/plantuml/pull/42)
+
 ### Removed
 
 - Removed the unused, never-wired-up `pythontex` dependency from the non-LuaTeX code path. [#1](https://github.com/koppor/plantuml/issues/1)

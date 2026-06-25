@@ -67,10 +67,30 @@
 
 \ifluatex
   \RequirePackage{luacode}
-   \directlua{
+  % Decide where the generated *-plantuml.txt must be written so that the Lua
+  % script (which uses the process working directory) can read it back.
+  %
+  % A relative \openout follows -output-directory, which on Overleaf differs
+  % from the Lua working directory (#42); an absolute path fixes that but is
+  % rejected by openout_any=p, the paranoid default of local TeX installations.
+  % So probe once: write a relative file and let Lua check whether it landed in
+  % its working directory. If yes, keep paths relative (paranoid-safe); if not
+  % (the write was redirected, e.g. on Overleaf), fall back to the absolute
+  % working directory -- exactly what #42 did.
+  \newwrite\PlantUmlProbeStream
+  \immediate\openout\PlantUmlProbeStream=openout-probe-plantuml.tmp\relax
+  \immediate\write\PlantUmlProbeStream{probe}%
+  \immediate\closeout\PlantUmlProbeStream
+  \directlua{
       local lfs = require("lfs")
-      local currentdir = lfs.currentdir():gsub("\\", "/")
-      tex.sprint("\\newcommand\\CurrentDirectory{" .. currentdir .. "/}")
+      local probe = "openout-probe-plantuml.tmp"
+      if lfs.attributes(probe) then
+        os.remove(probe)
+        tex.sprint("\\newcommand\\CurrentDirectory{}")
+      else
+        local currentdir = lfs.currentdir():gsub("\\", "/")
+        tex.sprint("\\newcommand\\CurrentDirectory{" .. currentdir .. "/}")
+      end
     }
 \else
   % Non-Lua engines (e.g. pdflatex) drive PlantUML directly via shell escape

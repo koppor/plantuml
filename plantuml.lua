@@ -3,9 +3,15 @@
 require "lfs"
 
 -- @param mode directly passed to PlantUML. Recommended: png, svg, pdf (requires Apache Batik to convert svg to pdf)
-function convertPlantUmlToTikz(jobname, mode)
-  local plantUmlSourceFilename = jobname .. "-plantuml.txt"
-  local plantUmlTargetFilename = jobname .. "-plantuml." .. mode
+-- @param iodir directory prefix (with trailing slash) where the generated
+--   *-plantuml.* files live. Empty unless lualatex runs with -output-directory:
+--   LaTeX redirects its writes there, but this script (a shell-escape
+--   subprocess) runs in the real working directory, so it must reach in
+--   explicitly. See plantuml.sty for how the prefix is determined (#27).
+function convertPlantUmlToTikz(jobname, mode, iodir)
+  iodir = iodir or ""
+  local plantUmlSourceFilename = iodir .. jobname .. "-plantuml.txt"
+  local plantUmlTargetFilename = iodir .. jobname .. "-plantuml." .. mode
 
   if not (lfs.attributes(plantUmlSourceFilename)) then
     texio.write_nl("Source " .. plantUmlSourceFilename .. " does not exist.")
@@ -48,7 +54,7 @@ function convertPlantUmlToTikz(jobname, mode)
   if (mode == "latex") then
     cmd = cmd .. "latex:nopreamble"
     -- plantuml has changed output format in https://github.com/plantuml/plantuml/pull/1237
-    plantUmlTargetFilename = jobname .. "-plantuml.tex"
+    plantUmlTargetFilename = iodir .. jobname .. "-plantuml.tex"
   else
     cmd = cmd .. mode
   end
@@ -56,13 +62,20 @@ function convertPlantUmlToTikz(jobname, mode)
 
   cmd = cmd .. [[ < "]] .. plantUmlSourceFilename .. [[" > "]] .. plantUmlTargetFilename .. [["]]
   texio.write_nl(cmd)
+  -- PlantUML (the JVM) hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path,
+  -- which is exactly what lualatex sets when run with a relative
+  -- -output-directory. Clear it for the child process only, then restore. (#27)
+  local savedOutDir = os.getenv("TEXMF_OUTPUT_DIRECTORY")
+  if savedOutDir and savedOutDir ~= "" then os.setenv("TEXMF_OUTPUT_DIRECTORY", "") end
   local handle,error = io.popen(cmd)
   if not handle then
+    if savedOutDir and savedOutDir ~= "" then os.setenv("TEXMF_OUTPUT_DIRECTORY", savedOutDir) end
     texio.write_nl("Error during execution of PlantUML.")
     texio.write_nl(error)
     return
   end
   io.close(handle)
+  if savedOutDir and savedOutDir ~= "" then os.setenv("TEXMF_OUTPUT_DIRECTORY", savedOutDir) end
 
   if not (lfs.attributes(plantUmlTargetFilename)) then
     texio.write_nl("PlantUML did not generate anything.")

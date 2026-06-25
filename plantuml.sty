@@ -65,38 +65,76 @@
 \let\PlantUmlMode\l_plantuml_mode
 \ExplSyntaxOff
 
+% PlantUML runs as a shell-escape subprocess, which executes in the real
+% working directory. LaTeX's own writes (\openout) and reads (\input,
+% \IfFileExists, ...) are instead redirected into -output-directory when one is
+% set, so the two sides disagree about where the generated *-plantuml.* files
+% live. Two prefixes bridge that gap:
+%
+%   \CurrentDirectory  prefixes LaTeX's \openout of the source file.
+%   \PlantUmlIODir     prefixes everything the shell side touches (reading the
+%                      source, writing the diagram) so it reaches into the
+%                      output directory.
+%
+% Modern TeX Live (>=2023) exposes the output directory to subprocesses via the
+% TEXMF_OUTPUT_DIRECTORY environment variable. When present we keep the source
+% \openout relative (TeX redirects it into the output directory, which
+% openout_any=p allows) and point the shell side at that directory -- this fixes
+% -output-directory (#27), including the paranoid openout_any=p default of local
+% TeX installations (#47, #50).
+%
+% Without that variable (older engines, some Overleaf setups, #42) we probe:
+% write a relative file and let Lua check whether it landed in the working
+% directory. If yes, everything stays relative; if not (the write was
+% redirected), fall back to the absolute working directory for both sides --
+% exactly what #42 did.
 \ifluatex
   \RequirePackage{luacode}
-  % Decide where the generated *-plantuml.txt must be written so that the Lua
-  % script (which uses the process working directory) can read it back.
-  %
-  % A relative \openout follows -output-directory, which on Overleaf differs
-  % from the Lua working directory (#42); an absolute path fixes that but is
-  % rejected by openout_any=p, the paranoid default of local TeX installations.
-  % So probe once: write a relative file and let Lua check whether it landed in
-  % its working directory. If yes, keep paths relative (paranoid-safe); if not
-  % (the write was redirected, e.g. on Overleaf), fall back to the absolute
-  % working directory -- exactly what #42 did.
   \newwrite\PlantUmlProbeStream
   \immediate\openout\PlantUmlProbeStream=openout-probe-plantuml.tmp\relax
   \immediate\write\PlantUmlProbeStream{probe}%
   \immediate\closeout\PlantUmlProbeStream
   \directlua{
       local lfs = require("lfs")
-      local probe = "openout-probe-plantuml.tmp"
-      if lfs.attributes(probe) then
-        os.remove(probe)
-        tex.sprint("\\newcommand\\CurrentDirectory{}")
+      local outdir = os.getenv("TEXMF_OUTPUT_DIRECTORY")
+      if outdir and outdir:len() > 0 then
+        outdir = outdir:gsub("\\", "/") .. "/"
+        os.remove(outdir .. "openout-probe-plantuml.tmp")
+        os.remove("openout-probe-plantuml.tmp")
+        tex.sprint("\\gdef\\CurrentDirectory{}")
+        tex.sprint("\\gdef\\PlantUmlIODir{" .. outdir .. "}")
       else
-        local currentdir = lfs.currentdir():gsub("\\", "/")
-        tex.sprint("\\newcommand\\CurrentDirectory{" .. currentdir .. "/}")
+        local probe = "openout-probe-plantuml.tmp"
+        if lfs.attributes(probe) then
+          os.remove(probe)
+          tex.sprint("\\gdef\\CurrentDirectory{}")
+          tex.sprint("\\gdef\\PlantUmlIODir{}")
+        else
+          local currentdir = lfs.currentdir():gsub("\\", "/")
+          tex.sprint("\\gdef\\CurrentDirectory{" .. currentdir .. "/}")
+          tex.sprint("\\gdef\\PlantUmlIODir{" .. currentdir .. "/}")
+        end
       end
     }
 \else
   % Non-Lua engines (e.g. pdflatex) drive PlantUML directly via shell escape
-  % (see the \plantuml@... helpers below). Everything is relative to the current
-  % working directory, so no directory prefix is required.
+  % (see the \plantuml@... helpers below). \CurrentDirectory stays empty (the
+  % source \openout is relative, so TeX redirects it into any -output-directory);
+  % \PlantUmlIODir is filled in from TEXMF_OUTPUT_DIRECTORY in the shell-escape
+  % branch below so the \write18 invocation can reach the files there (#27).
   \newcommand{\CurrentDirectory}{}
+  \newcommand{\PlantUmlIODir}{}
+  % PlantUML (the JVM) hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path,
+  % which is what pdflatex sets under a relative -output-directory. We clear it
+  % for the PlantUML child by prefixing the call with \PlantUmlEnvReset, which is
+  % set to \PlantUmlUnsetPrefix only while an output directory is in effect (#27).
+  % POSIX uses "env -u"; on Windows the prefix is left empty (untested combo).
+  \newcommand{\PlantUmlEnvReset}{}
+  \ExplSyntaxOn
+    \sys_if_platform_windows:TF
+      { \gdef\PlantUmlUnsetPrefix { } }
+      { \gdef\PlantUmlUnsetPrefix { env\space-u\space TEXMF_OUTPUT_DIRECTORY\space } }
+  \ExplSyntaxOff
 \fi
 
 \makeatletter
@@ -149,6 +187,27 @@
     \fi
   }
 
+  % \plantuml@readoutdir: read TEXMF_OUTPUT_DIRECTORY into \PlantUmlIODir (with a
+  % trailing slash) so the \write18 PlantUML call can reach files written into a
+  % -output-directory. Cross-platform via kpsewhich, like \plantuml@readjar. Left
+  % empty when no output directory is in effect. Needs shell escape.
+  \newcommand*{\plantuml@readoutdir}{%
+    \begingroup
+      \endlinechar=-1\relax
+      \openin\plantuml@stream=|"kpsewhich --var-value=TEXMF_OUTPUT_DIRECTORY"\relax
+      \ifeof\plantuml@stream
+      \else
+        \readline\plantuml@stream to \plantuml@line
+        \ifx\plantuml@line\@empty
+        \else
+          \xdef\PlantUmlIODir{\plantuml@line/}%
+          \global\let\PlantUmlEnvReset\PlantUmlUnsetPrefix
+        \fi
+      \fi
+      \closein\plantuml@stream
+    \endgroup
+  }
+
   % \plantuml@convert{<jobname>}{<mode>}: run PlantUML on <jobname>-plantuml.txt,
   % producing <jobname>-plantuml.{tex|<mode>}. The run is skipped when the source
   % is byte-for-byte identical to the previously converted one (MD5 cache).
@@ -174,13 +233,14 @@
             \typeout{[plantuml] \plantuml@src\space unchanged; skipping PlantUML.}%
           \else
             \edef\plantuml@cmd{%
+              \PlantUmlEnvReset
               java -Djava.awt.headless=true -jar "\plantuml@jar"%
               \space -charset UTF-8 -pipe -t\plantuml@topt
-              \space < "\plantuml@src" > "\plantuml@tgt"}%
+              \space < "\PlantUmlIODir\plantuml@src" > "\PlantUmlIODir\plantuml@tgt"}%
             \typeout{[plantuml] \plantuml@cmd}%
             \immediate\write18{\plantuml@cmd}%
-            \IfFileExists{\plantuml@tgt}{%
-              \ifnum\pdf@filesize{\plantuml@tgt}>0\relax
+            \IfFileExists{\PlantUmlIODir\plantuml@tgt}{%
+              \ifnum\pdf@filesize{\PlantUmlIODir\plantuml@tgt}>0\relax
                 % Cache the source MD5 so the next run can skip PlantUML.
                 \immediate\openout\plantuml@cacheout=\plantuml@cache\relax
                 \immediate\write\plantuml@cacheout{\plantuml@srcsum}%
@@ -216,6 +276,7 @@
     }
   \else
     \plantuml@readjar
+    \plantuml@readoutdir
   \fi
   \NewDocumentEnvironment{plantuml}{}{%
     \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
@@ -225,18 +286,19 @@
       \directlua{
         local jobname=\luastring{\PlantUMLJobname}
         local plantUmlMode=\luastring{\PlantUmlMode}
+        local plantUmlIODir=\luastring{\PlantUmlIODir}
         require("plantuml.lua")
-        convertPlantUmlToTikz(jobname, plantUmlMode)
+        convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir)
       }
     \else
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{
       \begin{adjustbox}{max width=\linewidth}
-        \input{\PlantUMLJobname-plantuml.tex}
+        \input{\PlantUmlIODir\PlantUMLJobname-plantuml.tex}
       \end{adjustbox}
     }{
-      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUMLJobname-plantuml.\PlantUmlMode}
+      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir\PlantUMLJobname-plantuml.\PlantUmlMode}
       \UMLcountUp
     }
   }

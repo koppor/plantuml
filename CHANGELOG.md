@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Fixed `lualatex` failing with `I can't write on file '…-plantuml.txt'` under the paranoid `openout_any=p` setting (the default of local TeX Live and MiKTeX installations). The generated source file is now written with a relative path whenever possible, falling back to the absolute working directory only when the write is redirected (e.g. by Overleaf's output directory), so the Overleaf fix keeps working. [#47](https://github.com/koppor/plantuml/issues/47), [#50](https://github.com/koppor/plantuml/issues/50), [#42](https://github.com/koppor/plantuml/pull/42)
+- Fixed PlantUML diagrams not being found when LaTeX is run with `-output-directory`. The generated source is now read from, and the diagram written to, that directory (located via `TEXMF_OUTPUT_DIRECTORY`). The variable is additionally cleared for the PlantUML subprocess, which otherwise hangs when it holds a relative path. Works for both `lualatex` and `pdflatex`. [#27](https://github.com/koppor/plantuml/issues/27)
 
 ### Removed
 

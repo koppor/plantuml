@@ -49,6 +49,11 @@ jobs:
           packages: graphviz inkscape
           version: 1.1
           execute_install_scripts: true
+      # cache-apt-pkgs-action restores graphviz from cached .debs without running
+      # its post-install "dot -c", leaving the plugin config missing -> dot emits
+      # broken output and PlantUML throws UnparsableGraphvizException. Regenerate it.
+      - name: Configure graphviz plugins
+        run: sudo dot -c
       - name: Install TeX Live
         uses: zauguin/install-texlive@v4
         with:
@@ -57,8 +62,12 @@ jobs:
         run: pdflatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
         run: pdflatex -shell-escape example-class-relations--svg
-      - name: example-class-visibility
-        run: pdflatex -shell-escape example-class-visibility
+      - name: example-class-visibility--latex
+        run: pdflatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--png
+        run: pdflatex -shell-escape example-class-visibility--png
+      - name: example-class-visibility--svg
+        run: pdflatex -shell-escape example-class-visibility--svg
       - name: example-component-diagram
         run: pdflatex -shell-escape example-component-diagram
       - name: example-minimal
@@ -94,6 +103,11 @@ jobs:
           packages: graphviz inkscape
           version: 1.1
           execute_install_scripts: true
+      # cache-apt-pkgs-action restores graphviz from cached .debs without running
+      # its post-install "dot -c", leaving the plugin config missing -> dot emits
+      # broken output and PlantUML throws UnparsableGraphvizException. Regenerate it.
+      - name: Configure graphviz plugins
+        run: sudo dot -c
       - name: Install TeX Live
         uses: zauguin/install-texlive@v4
         with:
@@ -102,8 +116,12 @@ jobs:
         run: lualatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
         run: lualatex -shell-escape example-class-relations--svg
-      - name: example-class-visibility
-        run: lualatex -shell-escape example-class-visibility
+      - name: example-class-visibility--latex
+        run: lualatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--png
+        run: lualatex -shell-escape example-class-visibility--png
+      - name: example-class-visibility--svg
+        run: lualatex -shell-escape example-class-visibility--svg
       - name: example-component-diagram
         run: lualatex -shell-escape example-component-diagram
       - name: example-minimal

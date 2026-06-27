@@ -3,8 +3,10 @@
 % The diagram body is read verbatim, so write PlantUML exactly as in a .puml
 % file -- including characters LaTeX treats specially, such as "#". Write them
 % as-is; do NOT escape them (e.g. use "#balance", not "\#balance"). See #24.
+%
+% PNG output: needs graphviz, but no xelatex and no inkscape.
 \documentclass{scrartcl}
-\usepackage{plantuml}
+\usepackage[output=png]{plantuml}
 \begin{document}
 \begin{plantuml}
 @startuml

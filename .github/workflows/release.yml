@@ -31,14 +31,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Resolve latest PlantUML version
+      - name: Set PlantUML version
         id: plantuml-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-          echo "Latest PlantUML: ${tag#v}"
+        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@v0.1.4
@@ -54,18 +49,29 @@ jobs:
           packages: graphviz inkscape
           version: 1.1
           execute_install_scripts: true
+      # cache-apt-pkgs-action restores graphviz from cached .debs without running
+      # its post-install "dot -c", leaving the plugin config missing -> dot emits
+      # broken output and PlantUML throws UnparsableGraphvizException. Regenerate it.
+      - name: Configure graphviz plugins
+        run: sudo dot -c
       - name: Install TeX Live
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
-      - name: example-minimal
-        run: pdflatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
         run: pdflatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
         run: pdflatex -shell-escape example-class-relations--svg
+      - name: example-class-visibility--latex
+        run: pdflatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--png
+        run: pdflatex -shell-escape example-class-visibility--png
+      - name: example-class-visibility--svg
+        run: pdflatex -shell-escape example-class-visibility--svg
       - name: example-component-diagram
         run: pdflatex -shell-escape example-component-diagram
+      - name: example-minimal
+        run: pdflatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: pdflatex -shell-escape example-multiple-diagrams-svg
       - uses: actions/upload-artifact@v6
@@ -79,14 +85,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Resolve latest PlantUML version
+      - name: Set PlantUML version
         id: plantuml-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-          echo "Latest PlantUML: ${tag#v}"
+        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@v0.1.4
@@ -102,18 +103,29 @@ jobs:
           packages: graphviz inkscape
           version: 1.1
           execute_install_scripts: true
+      # cache-apt-pkgs-action restores graphviz from cached .debs without running
+      # its post-install "dot -c", leaving the plugin config missing -> dot emits
+      # broken output and PlantUML throws UnparsableGraphvizException. Regenerate it.
+      - name: Configure graphviz plugins
+        run: sudo dot -c
       - name: Install TeX Live
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
-      - name: example-minimal
-        run: lualatex -shell-escape example-minimal.tex
       - name: example-class-relations--latex
         run: lualatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
         run: lualatex -shell-escape example-class-relations--svg
+      - name: example-class-visibility--latex
+        run: lualatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--png
+        run: lualatex -shell-escape example-class-visibility--png
+      - name: example-class-visibility--svg
+        run: lualatex -shell-escape example-class-visibility--svg
       - name: example-component-diagram
         run: lualatex -shell-escape example-component-diagram
+      - name: example-minimal
+        run: lualatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: lualatex -shell-escape example-multiple-diagrams-svg
       - name: Gather build artifacts

@@ -9,32 +9,28 @@ environment variable (see `README.md`).
 
 ## Updating PlantUML
 
-CI does **not** pin a PlantUML version. Both `.github/workflows/check.yml` and
-`.github/workflows/release.yml` resolve the latest release at run time:
+CI pins the PlantUML version. Both `.github/workflows/check.yml` and
+`.github/workflows/release.yml` download a fixed `plantuml-<version>.jar` via
+`ethanjli/cached-download-action` (the cache is keyed on the version, so a bump
+fetches the new jar automatically).
 
-```sh
-gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name'
-```
-
-and download `plantuml-<version>.jar` via `ethanjli/cached-download-action`. The
-download cache is keyed on the resolved version, so it refreshes automatically
-whenever PlantUML publishes a new release — there is nothing to bump by hand.
-
-- **`check.yml`** compiles the examples with `-output-directory` against the
-  latest PlantUML, so we notice when a new PlantUML release breaks the package.
-- **`release.yml`** builds the CTAN package and GitHub Pages with the same
-  latest jar.
-
-To **pin** a specific version instead, replace the "Resolve latest PlantUML
-version" step with a fixed value, e.g.:
+To **bump** PlantUML, change the version in the "Set PlantUML version" step:
 
 ```yaml
-      - name: Resolve PlantUML version
+      - name: Set PlantUML version
         id: plantuml-version
-        run: echo "version=1.2025.1" >> "$GITHUB_OUTPUT"
+        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
 ```
 
-Locally, point `PLANTUML_JAR` at any jar; grab the latest from
+It appears **once in `check.yml` and twice in `release.yml`** (one per job) —
+update all of them to the same value. Pick a version from
+<https://github.com/plantuml/plantuml/releases>.
+
+- **`check.yml`** compiles the examples with `-output-directory` (regression test
+  for the pinned PlantUML).
+- **`release.yml`** builds the CTAN package and GitHub Pages with the same jar.
+
+Locally, point `PLANTUML_JAR` at any jar; grab one from
 <https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar>.
 
 ## Testing changes

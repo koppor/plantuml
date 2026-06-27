@@ -21,22 +21,17 @@ jobs:
       matrix:
         engine: [lualatex, pdflatex]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
-      # The check runs against the *latest* PlantUML so it catches breakage with
-      # new releases. The cache key is the resolved version, so it refreshes
-      # automatically whenever PlantUML publishes a new release.
-      - name: Resolve latest PlantUML version
+      # PlantUML is pinned; bump the version here (see CLAUDE.md). The cache is
+      # keyed on the version, so a bump fetches the new jar automatically.
+      - name: Set PlantUML version
         id: plantuml-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-          echo "Latest PlantUML: ${tag#v}"
+        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@v0.1.4
@@ -52,6 +47,11 @@ jobs:
           packages: graphviz inkscape
           version: 1.1
           execute_install_scripts: true
+      # cache-apt-pkgs-action restores graphviz from cached .debs without running
+      # its post-install "dot -c", leaving the plugin config missing -> dot emits
+      # broken output and PlantUML throws UnparsableGraphvizException. Regenerate it.
+      - name: Configure graphviz plugins
+        run: sudo dot -c
       - name: Install TeX Live
         uses: zauguin/install-texlive@v4
         with:
@@ -60,10 +60,13 @@ jobs:
         run: |
           mkdir -p out
           for example in \
-            example-minimal \
             example-class-relations--latex \
             example-class-relations--svg \
+            example-class-visibility--latex \
+            example-class-visibility--png \
+            example-class-visibility--svg \
             example-component-diagram \
+            example-minimal \
             example-multiple-diagrams-svg; do
             echo "::group::${{ matrix.engine }} -output-directory=out $example"
             ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error -output-directory=out "$example"

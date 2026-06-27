@@ -27,7 +27,10 @@ update all of them to the same value. Pick a version from
 <https://github.com/plantuml/plantuml/releases>.
 
 - **`check.yml`** compiles the examples with `-output-directory` (regression test
-  for the pinned PlantUML).
+  for the pinned PlantUML). It also has a `server` job (regression test for #6)
+  that renders `example-server--{png,svg}` against a `plantuml/plantuml-server`
+  service container with `PLANTUML_JAR` unset; that job uses the server image's
+  own (unpinned) PlantUML, not the jar version above.
 - **`release.yml`** builds the CTAN package and GitHub Pages with the same jar.
 
 Locally, point `PLANTUML_JAR` at any jar; grab one from

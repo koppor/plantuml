@@ -1,0 +1,30 @@
+% Renders a diagram through a PlantUML *server* instead of a local plantuml.jar,
+% so no Java/PlantUML installation is needed -- only curl (and inkscape to turn
+% the SVG into a PDF). See #6.
+%
+% The `server` option below points at a local server (e.g. the official
+% `plantuml/plantuml-server` Docker image on port 8080). To use the public
+% server instead, set it to https://www.plantuml.com/plantuml. Alternatively,
+% drop the option and set the PLANTUML_SERVER environment variable.
+%
+% Only png and svg work via a server; latex/TikZ output always uses the jar.
+\documentclass{scrartcl}
+
+\usepackage{graphics}
+\usepackage{epstopdf}
+\epstopdfDeclareGraphicsRule{.svg}{pdf}{.pdf}{%
+  inkscape "#1" --export-text-to-path --export-filename="\OutputFile"
+}
+
+\usepackage[output=svg, server=http://localhost:8080]{plantuml}
+\begin{document}
+\begin{plantuml}
+@startuml
+class Car
+
+Driver - Car : drives >
+Car *- Wheel : have 4 >
+Car -- Person : < owns
+@enduml
+\end{plantuml}
+\end{document}

@@ -114,12 +114,9 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server)
   io.close(handle)
 
   if not (lfs.attributes(plantUmlTargetFilename)) then
+    -- Leave no target file: plantuml.sty then typesets a visible placeholder
+    -- instead of failing on a missing \input/\includegraphics. (#16)
     texio.write_nl("PlantUML did not generate anything.")
-    if mode == "latex" then
-      handle = io.open(plantUmlTargetFilename, "w")
-      handle:write("Error during latex code generation")
-      io.close(handle)
-    end
     return
   else
     -- cache plantUmlSourceFilename for next run

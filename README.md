@@ -16,6 +16,8 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
    You get it from <https://sourceforge.net/projects/plantuml/files/plantuml.jar/download>.
    Not needed when rendering `png`/`svg` through a PlantUML server (see
    [Rendering via a PlantUML server](#rendering-via-a-plantuml-server)).
+   If neither a jar nor a server is available, the diagram is replaced by a
+   visible placeholder rather than aborting the build.
 2. Windows: Environment variable `GRAPHVIZ_DOT` set to the location of `dot.exe`.
    Example: `C:\Program Files (x86)\Graphviz2.38\bin\dot.exe`.
    You can install graphviz using `choco install graphviz`.

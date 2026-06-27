@@ -31,14 +31,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Resolve latest PlantUML version
+      - name: Set PlantUML version
         id: plantuml-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-          echo "Latest PlantUML: ${tag#v}"
+        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@v0.1.4
@@ -81,14 +76,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Resolve latest PlantUML version
+      - name: Set PlantUML version
         id: plantuml-version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag=$(gh api repos/plantuml/plantuml/releases/latest --jq '.tag_name')
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-          echo "Latest PlantUML: ${tag#v}"
+        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@v0.1.4

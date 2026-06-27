@@ -61,21 +61,25 @@ function convertPlantUmlToTikz(jobname, mode, iodir)
 
 
   cmd = cmd .. [[ < "]] .. plantUmlSourceFilename .. [[" > "]] .. plantUmlTargetFilename .. [["]]
+  -- PlantUML's TikZ output runs xelatex internally to measure text, and that
+  -- xelatex hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path (set by
+  -- lualatex's -output-directory). Clear it for the PlantUML child via a command
+  -- prefix -- os.setenv is not reliable for io.popen children across builds. (#27)
+  if os.getenv("TEXMF_OUTPUT_DIRECTORY") then
+    if package.config:sub(1, 1) == "\\" then
+      cmd = [[set "TEXMF_OUTPUT_DIRECTORY=" && ]] .. cmd
+    else
+      cmd = "env -u TEXMF_OUTPUT_DIRECTORY " .. cmd
+    end
+  end
   texio.write_nl(cmd)
-  -- PlantUML (the JVM) hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path,
-  -- which is exactly what lualatex sets when run with a relative
-  -- -output-directory. Clear it for the child process only, then restore. (#27)
-  local savedOutDir = os.getenv("TEXMF_OUTPUT_DIRECTORY")
-  if savedOutDir and savedOutDir ~= "" then os.setenv("TEXMF_OUTPUT_DIRECTORY", "") end
   local handle,error = io.popen(cmd)
   if not handle then
-    if savedOutDir and savedOutDir ~= "" then os.setenv("TEXMF_OUTPUT_DIRECTORY", savedOutDir) end
     texio.write_nl("Error during execution of PlantUML.")
     texio.write_nl(error)
     return
   end
   io.close(handle)
-  if savedOutDir and savedOutDir ~= "" then os.setenv("TEXMF_OUTPUT_DIRECTORY", savedOutDir) end
 
   if not (lfs.attributes(plantUmlTargetFilename)) then
     texio.write_nl("PlantUML did not generate anything.")

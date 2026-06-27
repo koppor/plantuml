@@ -83,7 +83,9 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server)
     local url = server .. "/" .. mode .. "/~h" .. plantUmlHexEncode(sourceContent)
     cmd = [[curl -sS -f -o "]] .. plantUmlTargetFilename .. [[" "]] .. url .. [["]]
   else
-    cmd = "java -Djava.awt.headless=true -jar " .. plantUmlJar .. " -charset UTF-8 -pipe -t"
+    -- Quote the jar path so a PLANTUML_JAR with spaces works, e.g. on Windows
+    -- "C:\Program Files (x86)\PlantUML\plantuml.jar" (#7).
+    cmd = [[java -Djava.awt.headless=true -jar "]] .. plantUmlJar .. [[" -charset UTF-8 -pipe -t]]
     if (mode == "latex") then
       cmd = cmd .. "latex:nopreamble"
       -- plantuml has changed output format in https://github.com/plantuml/plantuml/pull/1237

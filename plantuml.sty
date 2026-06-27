@@ -145,6 +145,24 @@
 
 \makeatletter
 
+% \plantuml@notgenerated: visible, non-fatal placeholder typeset in the document
+% when a diagram could not be generated (e.g. PLANTUML_JAR unset, no server, or
+% PlantUML failed). This keeps compilation going -- the error is shown in the
+% output, similar to a missing reference -- instead of aborting on a missing
+% \input/\includegraphics. (#16)
+\newcommand{\plantuml@notgenerated}{%
+  \PackageWarning{plantuml}{PlantUML diagram could not be generated; is
+    PLANTUML_JAR set (or a server configured) and -shell-escape enabled?}%
+  \fbox{%
+    \begin{minipage}{0.8\linewidth}%
+      \raggedright
+      \textbf{PlantUML diagram could not be generated.}\par
+      Ensure \texttt{PLANTUML\_JAR} is set (or a \texttt{server} is configured)
+      and that \texttt{-shell-escape} is enabled.%
+    \end{minipage}%
+  }%
+}
+
 % --- Non-Lua (e.g. pdflatex) PlantUML driver ----------------------------------
 % The LuaTeX path (plantuml.lua) shells out with io.popen, reads PLANTUML_JAR
 % with os.getenv and checks files with lfs. For pdfTeX we reproduce the same
@@ -368,11 +386,19 @@
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{
-      \begin{adjustbox}{max width=\linewidth}
-        \input{\PlantUmlIODir\PlantUMLJobname-plantuml.tex}
-      \end{adjustbox}
+      \IfFileExists{\PlantUmlIODir\PlantUMLJobname-plantuml.tex}{%
+        \begin{adjustbox}{max width=\linewidth}
+          \input{\PlantUmlIODir\PlantUMLJobname-plantuml.tex}
+        \end{adjustbox}%
+      }{%
+        \plantuml@notgenerated
+      }%
     }{
-      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir\PlantUMLJobname-plantuml.\PlantUmlMode}
+      \IfFileExists{\PlantUmlIODir\PlantUMLJobname-plantuml.\PlantUmlMode}{%
+        \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir\PlantUMLJobname-plantuml.\PlantUmlMode}%
+      }{%
+        \plantuml@notgenerated
+      }%
       \UMLcountUp
     }
   }

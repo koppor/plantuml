@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added `example-class-visibility--latex.tex`, `example-class-visibility--png.tex`, and `example-class-visibility--svg.tex` demonstrating class member visibility, including the protected marker `#`, which is written as-is (the diagram body is verbatim, so no LaTeX escaping). [#24](https://github.com/koppor/plantuml/issues/24)
 - Added support for rendering `png` and `svg` diagrams through a [PlantUML server](https://github.com/plantuml/plantuml-server) over HTTP, configured via the `server` package option or the `PLANTUML_SERVER` environment variable. This needs only `curl`, not a local `plantuml.jar`/Java, which is convenient on CI. The source is sent hex-encoded (the `~h` server marker). `latex`/TikZ output cannot be produced by a server and continues to use the local jar. Includes `example-server--png.tex` and `example-server--svg.tex`. [#6](https://github.com/koppor/plantuml/issues/6)
 
+### Changed
+
+- A diagram that cannot be generated (for example when `PLANTUML_JAR` is not set, no server is configured, or PlantUML fails) no longer aborts the LaTeX run. A visible placeholder is typeset in the document instead, similar to a missing reference. [#16](https://github.com/koppor/plantuml/issues/16)
+
 ### Fixed
 
 - Fixed `lualatex` failing with `I can't write on file '…-plantuml.txt'` under the paranoid `openout_any=p` setting (the default of local TeX Live and MiKTeX installations). The generated source file is now written with a relative path whenever possible, falling back to the absolute working directory only when the write is redirected (e.g. by Overleaf's output directory), so the Overleaf fix keeps working. [#47](https://github.com/koppor/plantuml/issues/47), [#50](https://github.com/koppor/plantuml/issues/50), [#42](https://github.com/koppor/plantuml/pull/42)

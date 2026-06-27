@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Generated diagrams are now cached by a content hash (minted/memoize style): each diagram is written to `plantuml-<md5>.<ext>` and PlantUML (or the server) is invoked only when no file for that hash exists yet. Identical, repeated, or reordered diagrams reuse the cached output, so recompiles are fast and only edited diagrams are regenerated. [#2](https://github.com/koppor/plantuml/issues/2)
 - A diagram that cannot be generated (for example when `PLANTUML_JAR` is not set, no server is configured, or PlantUML fails) no longer aborts the LaTeX run. A visible placeholder is typeset in the document instead, similar to a missing reference. [#16](https://github.com/koppor/plantuml/issues/16)
 
 ### Fixed

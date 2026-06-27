@@ -1,4 +1,8 @@
 *-plantuml.*
+# content-addressed PlantUML cache files (#2)
+plantuml-*.tex
+plantuml-*.png
+plantuml-*.svg
 *.pdf
 tmp-pdfcrop-*.tex
 tex2pdf.*

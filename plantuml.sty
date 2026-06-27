@@ -12,7 +12,8 @@
 % Enable checking for active -shell-escape
 % Source: https://tex.stackexchange.com/a/88620/9075
 % pdftexcmds also provides the engine-agnostic helpers used by the pdflatex
-% path below: \pdf@filemdfivesum, \pdf@strcmp, and \pdf@filesize.
+% path below: \pdf@filemdfivesum (content-hash cache), \pdf@filesize, and
+% \pdf@filedump (hex-encode the source for the PlantUML server).
 \RequirePackage{pdftexcmds}
 
 % Robust \ifluatex (and friends) across engines, needed to branch between the
@@ -145,6 +146,10 @@
 
 \makeatletter
 
+% Content hash of the current diagram; the generated file is plantuml-<hash>.<ext>
+% (#2). Set per diagram by the converter; default empty as a safety net.
+\newcommand{\PlantUmlHash}{}
+
 % \plantuml@notgenerated: visible, non-fatal placeholder typeset in the document
 % when a diagram could not be generated (e.g. PLANTUML_JAR unset, no server, or
 % PlantUML failed). This keeps compilation going -- the error is shown in the
@@ -172,29 +177,12 @@
 % same caching that plantuml.lua does, which avoids latexmk rebuild loops).
 \ifluatex\else
   \newread\plantuml@stream
-  \newwrite\plantuml@cacheout
   \let\plantuml@jar\@empty
 
   % The PlantUML server expects hex-encoded source after a "~h" marker. "~" is an
   % active character in TeX (\nobreakspace), so capture a catcode-12 "~h" literal
   % for safe use inside the \edef that builds the curl URL. (#6)
   {\catcode`\~=12 \gdef\plantuml@hexmarker{~h}}
-
-  % \plantuml@readline{<file>}{<cs>}: define <cs> (globally) to the first line of
-  % <file>, or to empty if the file is absent. \endlinechar=-1 strips the EOL.
-  \newcommand{\plantuml@readline}[2]{%
-    \begingroup
-      \endlinechar=-1\relax
-      \openin\plantuml@stream=#1\relax
-      \ifeof\plantuml@stream
-        \global\def#2{}%
-      \else
-        \readline\plantuml@stream to \plantuml@line
-        \global\let#2\plantuml@line
-      \fi
-      \closein\plantuml@stream
-    \endgroup
-  }
 
   % \plantuml@readjar: read the PLANTUML_JAR environment variable into
   % \plantuml@jar, cross-platform, via kpsewhich. Needs full shell escape, so it
@@ -276,34 +264,41 @@
     \endgroup
   }
 
-  % \plantuml@convert{<jobname>}{<mode>}: run PlantUML on <jobname>-plantuml.txt,
-  % producing <jobname>-plantuml.{tex|<mode>}. The run is skipped when the source
-  % is byte-for-byte identical to the previously converted one (MD5 cache).
+  % \plantuml@iffilenonempty{<file>}{<then>}{<else>}: run <then> if <file> exists
+  % and is non-empty, else <else>.
+  \newcommand{\plantuml@iffilenonempty}[3]{%
+    \IfFileExists{#1}{\ifnum\pdf@filesize{#1}>0\relax #2\else #3\fi}{#3}%
+  }
+
+  % \plantuml@convert{<jobname>}{<mode>}: render <jobname>-plantuml.txt to the
+  % content-addressed file plantuml-<md5>.{tex|<mode>}. PlantUML runs only when no
+  % such file exists yet, so identical or reordered diagrams reuse the cached
+  % output (#2). Sets \PlantUmlHash to the md5 (empty on failure) so the
+  % environment can include the matching file.
   \newcommand{\plantuml@convert}[2]{%
     \begingroup
       \edef\plantuml@src{#1-plantuml.txt}%
       \ifthenelse{\equal{#2}{latex}}{%
         % PlantUML emits the file with a .tex extension since v1.2023.0.
-        \edef\plantuml@tgt{#1-plantuml.tex}%
+        \def\plantuml@ext{tex}%
         \def\plantuml@topt{latex:nopreamble}%
       }{%
-        \edef\plantuml@tgt{#1-plantuml.#2}%
+        \def\plantuml@ext{#2}%
         \def\plantuml@topt{#2}%
       }%
-      \edef\plantuml@cache{\plantuml@src.#2.cache}%
       \IfFileExists{\plantuml@src}{%
-        % Pick the backend: a configured server renders png/svg; latex (TikZ),
-        % which the server cannot produce, and the no-server case use the jar (#6).
-        \edef\plantuml@tmp{\PlantUmlServer}%
-        \def\plantuml@useserver{0}%
-        \ifx\plantuml@tmp\@empty\else
-          \ifthenelse{\equal{#2}{latex}}{}{\def\plantuml@useserver{1}}%
-        \fi
-        \edef\plantuml@srcsum{\pdf@filemdfivesum{\plantuml@src}}%
-        \plantuml@readline{\plantuml@cache}{\plantuml@cachedsum}%
-        \ifnum\pdf@strcmp{\plantuml@srcsum}{\plantuml@cachedsum}=0\relax
-          \typeout{[plantuml] \plantuml@src\space unchanged; skipping PlantUML.}%
-        \else
+        \edef\plantuml@hash{\pdf@filemdfivesum{\plantuml@src}}%
+        \edef\plantuml@tgt{plantuml-\plantuml@hash.\plantuml@ext}%
+        \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
+          \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
+        }{%
+          % Pick the backend: a configured server renders png/svg; latex (TikZ),
+          % which the server cannot produce, and the no-server case use the jar (#6).
+          \edef\plantuml@tmp{\PlantUmlServer}%
+          \def\plantuml@useserver{0}%
+          \ifx\plantuml@tmp\@empty\else
+            \ifthenelse{\equal{#2}{latex}}{}{\def\plantuml@useserver{1}}%
+          \fi
           \let\plantuml@cmd\@empty
           \ifthenelse{\equal{\plantuml@useserver}{1}}{%
             % Server backend: GET <server>/<format>/~h<hex-source> via curl.
@@ -327,22 +322,21 @@
           \ifx\plantuml@cmd\@empty\else
             \typeout{[plantuml] \plantuml@cmd}%
             \immediate\write18{\plantuml@cmd}%
-            \IfFileExists{\PlantUmlIODir\plantuml@tgt}{%
-              \ifnum\pdf@filesize{\PlantUmlIODir\plantuml@tgt}>0\relax
-                % Cache the source MD5 so the next run can skip PlantUML.
-                \immediate\openout\plantuml@cacheout=\plantuml@cache\relax
-                \immediate\write\plantuml@cacheout{\plantuml@srcsum}%
-                \immediate\closeout\plantuml@cacheout
-              \else
-                \PackageWarning{plantuml}{PlantUML produced an empty \plantuml@tgt}%
-              \fi
-            }{%
+            \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{}{%
               \PackageWarning{plantuml}{PlantUML did not generate \plantuml@tgt}%
             }%
           \fi
-        \fi
+        }%
+        % Expose the hash only if a non-empty output now exists, else empty so the
+        % environment shows the missing-diagram placeholder (#16).
+        \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
+          \global\let\PlantUmlHash\plantuml@hash
+        }{%
+          \global\let\PlantUmlHash\@empty
+        }%
       }{%
         \PackageWarning{plantuml}{Source \plantuml@src\space does not exist}%
+        \global\let\PlantUmlHash\@empty
       }%
     \endgroup
   }
@@ -373,6 +367,8 @@
     \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
   {%
     \endVerbatimOut
+    % \PlantUmlHash is set to the content hash of the diagram; the generated file
+    % is named plantuml-<hash>.<ext> so identical diagrams share one cached file (#2).
     \ifluatex
       \directlua{
         local jobname=\luastring{\PlantUMLJobname}
@@ -380,22 +376,23 @@
         local plantUmlIODir=\luastring{\PlantUmlIODir}
         local plantUmlServer=\luastring{\PlantUmlServer}
         require("plantuml.lua")
-        convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer)
+        local hash = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer)
+        tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
       }
     \else
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{
-      \IfFileExists{\PlantUmlIODir\PlantUMLJobname-plantuml.tex}{%
+      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash.tex}{%
         \begin{adjustbox}{max width=\linewidth}
-          \input{\PlantUmlIODir\PlantUMLJobname-plantuml.tex}
+          \input{\PlantUmlIODir plantuml-\PlantUmlHash.tex}
         \end{adjustbox}%
       }{%
         \plantuml@notgenerated
       }%
     }{
-      \IfFileExists{\PlantUmlIODir\PlantUMLJobname-plantuml.\PlantUmlMode}{%
-        \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir\PlantUMLJobname-plantuml.\PlantUmlMode}%
+      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash.\PlantUmlMode}{%
+        \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir plantuml-\PlantUmlHash.\PlantUmlMode}%
       }{%
         \plantuml@notgenerated
       }%

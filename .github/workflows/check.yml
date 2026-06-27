@@ -77,3 +77,55 @@ jobs:
         with:
           name: output-directory-${{ matrix.engine }}
           path: out/*.pdf
+  server:
+    # Regression test for #6: render diagrams through a PlantUML server instead of
+    # a local plantuml.jar. A plantuml-server container provides the HTTP API and
+    # PLANTUML_JAR is deliberately left unset, proving the server path needs no
+    # local Java/PlantUML install. Only png and svg go through the server (the
+    # server cannot produce latex/TikZ output), so those are the examples here.
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [lualatex, pdflatex]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      plantuml:
+        image: plantuml/plantuml-server:jetty
+        ports:
+          - 8080:8080
+    steps:
+      - uses: actions/checkout@v6
+      # inkscape converts the SVG diagram to PDF; graphviz/java are not needed
+      # locally because the server does the rendering.
+      - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
+        with:
+          packages: inkscape
+          version: 1.1
+          execute_install_scripts: true
+      - name: Install TeX Live
+        uses: zauguin/install-texlive@v4
+        with:
+          package_file: tl_packages
+      - name: Wait for the PlantUML server
+        # ~h<hex> is the encoded source "@startuml\nA->B:x\n@enduml\n".
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" \
+              "http://localhost:8080/svg/~h407374617274756d6c0a412d3e423a780a40656e64756d6c0a" || true)
+            [ "$code" = "200" ] && { echo "server ready"; exit 0; }
+            sleep 2
+          done
+          echo "::error::PlantUML server did not become ready"; exit 1
+      - name: Compile server examples (no PLANTUML_JAR)
+        run: |
+          for example in example-server--png example-server--svg; do
+            echo "::group::${{ matrix.engine }} $example"
+            ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error "$example"
+            echo "::endgroup::"
+            test -f "$example.pdf" || { echo "::error::$example.pdf was not produced"; exit 1; }
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: server-${{ matrix.engine }}
+          path: example-server--*.pdf

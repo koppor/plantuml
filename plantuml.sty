@@ -46,12 +46,17 @@
 \def\PlantUMLJobname{\myjobname\thePlantUmlFigureNumberSVG}
 
 \ExplSyntaxOn
+\tl_new:N \l_plantuml_server
 \keys_define:nn { plantuml } {
   output .choices:nn = {
     {latex, png, svg}
     { \tl_gset:NV \l_plantuml_mode \l_keys_choice_tl }
   },
-  output .initial:n = latex
+  output .initial:n = latex,
+  % PlantUML server base URL, e.g. https://www.plantuml.com/plantuml. When set,
+  % png/svg diagrams are rendered by the server instead of the local jar (#6).
+  server .tl_gset:N = \l_plantuml_server,
+  server .initial:n = ,
 }
 \ProcessKeysOptions { plantuml }
 \ExplSyntaxOff
@@ -63,6 +68,7 @@
 
 \ExplSyntaxOn
 \let\PlantUmlMode\l_plantuml_mode
+\let\PlantUmlServer\l_plantuml_server
 \ExplSyntaxOff
 
 % PlantUML runs as a shell-escape subprocess, which executes in the real
@@ -151,6 +157,11 @@
   \newwrite\plantuml@cacheout
   \let\plantuml@jar\@empty
 
+  % The PlantUML server expects hex-encoded source after a "~h" marker. "~" is an
+  % active character in TeX (\nobreakspace), so capture a catcode-12 "~h" literal
+  % for safe use inside the \edef that builds the curl URL. (#6)
+  {\catcode`\~=12 \gdef\plantuml@hexmarker{~h}}
+
   % \plantuml@readline{<file>}{<cs>}: define <cs> (globally) to the first line of
   % <file>, or to empty if the file is absent. \endlinechar=-1 strips the EOL.
   \newcommand{\plantuml@readline}[2]{%
@@ -183,7 +194,46 @@
       \closein\plantuml@stream
     \endgroup
     \ifx\plantuml@jar\@empty
-      \PackageWarning{plantuml}{Environment variable PLANTUML_JAR not set}%
+      % A PlantUML server (if configured) renders png/svg without the jar, so
+      % only warn about a missing jar when no server is set (#6).
+      \edef\plantuml@tmp{\PlantUmlServer}%
+      \ifx\plantuml@tmp\@empty
+        \PackageWarning{plantuml}{Environment variable PLANTUML_JAR not set}%
+      \fi
+    \fi
+  }
+
+  % Strip a trailing slash from \PlantUmlServer so "/<format>/~h..." appends
+  % cleanly. Defined under \ExplSyntaxOn so the l3regex name tokenizes correctly,
+  % under a letters-only name so it stays callable from normal catcodes. (#6)
+  \ExplSyntaxOn
+  \cs_new_protected:Npn \PlantumlStripTrailingSlash {
+    \regex_replace_once:nnN { /+ \Z } { } \PlantUmlServer
+  }
+  \ExplSyntaxOff
+
+  % \plantuml@readserver: resolve the PlantUML server URL. Uses the package option
+  % value if given, else the PLANTUML_SERVER environment variable (read via
+  % kpsewhich, like the jar). Any trailing slash is stripped so the format/source
+  % can be appended cleanly. Needs shell escape (for the kpsewhich pipe). (#6)
+  \newcommand*{\plantuml@readserver}{%
+    \edef\plantuml@tmp{\PlantUmlServer}%
+    \ifx\plantuml@tmp\@empty
+      \begingroup
+        \endlinechar=-1\relax
+        \openin\plantuml@stream=|"kpsewhich --var-value=PLANTUML_SERVER"\relax
+        \ifeof\plantuml@stream
+          \global\let\PlantUmlServer\@empty
+        \else
+          \readline\plantuml@stream to \plantuml@line
+          \global\let\PlantUmlServer\plantuml@line
+        \fi
+        \closein\plantuml@stream
+      \endgroup
+    \fi
+    \edef\plantuml@tmp{\PlantUmlServer}%
+    \ifx\plantuml@tmp\@empty\else
+      \PlantumlStripTrailingSlash
     \fi
   }
 
@@ -224,19 +274,39 @@
       }%
       \edef\plantuml@cache{\plantuml@src.#2.cache}%
       \IfFileExists{\plantuml@src}{%
-        \ifx\plantuml@jar\@empty
-          \PackageWarning{plantuml}{PLANTUML_JAR not set; cannot run PlantUML}%
+        % Pick the backend: a configured server renders png/svg; latex (TikZ),
+        % which the server cannot produce, and the no-server case use the jar (#6).
+        \edef\plantuml@tmp{\PlantUmlServer}%
+        \def\plantuml@useserver{0}%
+        \ifx\plantuml@tmp\@empty\else
+          \ifthenelse{\equal{#2}{latex}}{}{\def\plantuml@useserver{1}}%
+        \fi
+        \edef\plantuml@srcsum{\pdf@filemdfivesum{\plantuml@src}}%
+        \plantuml@readline{\plantuml@cache}{\plantuml@cachedsum}%
+        \ifnum\pdf@strcmp{\plantuml@srcsum}{\plantuml@cachedsum}=0\relax
+          \typeout{[plantuml] \plantuml@src\space unchanged; skipping PlantUML.}%
         \else
-          \edef\plantuml@srcsum{\pdf@filemdfivesum{\plantuml@src}}%
-          \plantuml@readline{\plantuml@cache}{\plantuml@cachedsum}%
-          \ifnum\pdf@strcmp{\plantuml@srcsum}{\plantuml@cachedsum}=0\relax
-            \typeout{[plantuml] \plantuml@src\space unchanged; skipping PlantUML.}%
-          \else
+          \let\plantuml@cmd\@empty
+          \ifthenelse{\equal{\plantuml@useserver}{1}}{%
+            % Server backend: GET <server>/<format>/~h<hex-source> via curl.
+            % \pdf@filedump emits the file as (uppercase) hex, which the server
+            % accepts after the ~h marker.
+            \edef\plantuml@hex{\pdf@filedump{0}{\pdf@filesize{\PlantUmlIODir\plantuml@src}}{\PlantUmlIODir\plantuml@src}}%
             \edef\plantuml@cmd{%
-              \PlantUmlEnvReset
-              java -Djava.awt.headless=true -jar "\plantuml@jar"%
-              \space -charset UTF-8 -pipe -t\plantuml@topt
-              \space < "\PlantUmlIODir\plantuml@src" > "\PlantUmlIODir\plantuml@tgt"}%
+              curl -sS -f -o "\PlantUmlIODir\plantuml@tgt"%
+              \space "\PlantUmlServer/\plantuml@topt/\plantuml@hexmarker\plantuml@hex"}%
+          }{%
+            \ifx\plantuml@jar\@empty
+              \PackageWarning{plantuml}{PLANTUML_JAR not set; cannot run PlantUML}%
+            \else
+              \edef\plantuml@cmd{%
+                \PlantUmlEnvReset
+                java -Djava.awt.headless=true -jar "\plantuml@jar"%
+                \space -charset UTF-8 -pipe -t\plantuml@topt
+                \space < "\PlantUmlIODir\plantuml@src" > "\PlantUmlIODir\plantuml@tgt"}%
+            \fi
+          }%
+          \ifx\plantuml@cmd\@empty\else
             \typeout{[plantuml] \plantuml@cmd}%
             \immediate\write18{\plantuml@cmd}%
             \IfFileExists{\PlantUmlIODir\plantuml@tgt}{%
@@ -270,11 +340,14 @@
   \ifluatex
     \directlua{
       local plantUmlJar = os.getenv("PLANTUML_JAR")
-      if not plantUmlJar then
+      local server = \luastring{\PlantUmlServer}
+      if server == "" then server = os.getenv("PLANTUML_SERVER") or "" end
+      if not plantUmlJar and server == "" then
         texio.write_nl("Environment variable PLANTUML_JAR not set.")
       end
     }
   \else
+    \plantuml@readserver
     \plantuml@readjar
     \plantuml@readoutdir
   \fi
@@ -287,8 +360,9 @@
         local jobname=\luastring{\PlantUMLJobname}
         local plantUmlMode=\luastring{\PlantUmlMode}
         local plantUmlIODir=\luastring{\PlantUmlIODir}
+        local plantUmlServer=\luastring{\PlantUmlServer}
         require("plantuml.lua")
-        convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir)
+        convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer)
       }
     \else
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}

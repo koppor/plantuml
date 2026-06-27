@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added support for `pdflatex`. PlantUML is now driven directly via shell escape, mirroring the LuaLaTeX path (same `plantuml.jar` invocation and MD5-based source caching). [#1](https://github.com/koppor/plantuml/issues/1)
 - Added [architecture decision record 0001](docs/decisions/0001-support-pdflatex-via-shell-escape.md) explaining why pdfLaTeX is driven via shell escape rather than via `hvextern`, `pythontex`, or `bashful`. [#1](https://github.com/koppor/plantuml/issues/1)
 - Added `example-class-visibility--latex.tex`, `example-class-visibility--png.tex`, and `example-class-visibility--svg.tex` demonstrating class member visibility, including the protected marker `#`, which is written as-is (the diagram body is verbatim, so no LaTeX escaping). [#24](https://github.com/koppor/plantuml/issues/24)
+- Added support for rendering `png` and `svg` diagrams through a [PlantUML server](https://github.com/plantuml/plantuml-server) over HTTP, configured via the `server` package option or the `PLANTUML_SERVER` environment variable. This needs only `curl`, not a local `plantuml.jar`/Java, which is convenient on CI. The source is sent hex-encoded (the `~h` server marker). `latex`/TikZ output cannot be produced by a server and continues to use the local jar. Includes `example-server--png.tex` and `example-server--svg.tex`. [#6](https://github.com/koppor/plantuml/issues/6)
 
 ### Fixed
 

@@ -14,6 +14,8 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 
 1. Environment variable `PLANTUML_JAR` set to the location of `plantuml.jar`.
    You get it from <https://sourceforge.net/projects/plantuml/files/plantuml.jar/download>.
+   Not needed when rendering `png`/`svg` through a PlantUML server (see
+   [Rendering via a PlantUML server](#rendering-via-a-plantuml-server)).
 2. Windows: Environment variable `GRAPHVIZ_DOT` set to the location of `dot.exe`.
    Example: `C:\Program Files (x86)\Graphviz2.38\bin\dot.exe`.
    You can install graphviz using `choco install graphviz`.
@@ -99,6 +101,43 @@ Car -- Person : < owns
 **Result:**
 
 ![Class relations rendered using SVG](example-class-relations--svg.png)
+
+### Rendering via a PlantUML server
+
+Instead of a local `plantuml.jar`, `png` and `svg` diagrams can be rendered by a
+[PlantUML server](https://github.com/plantuml/plantuml-server) over HTTP. This
+needs only `curl` — no Java and no local PlantUML installation — which is handy
+on CI and shared build machines (see [issue #6](https://github.com/koppor/plantuml/issues/6)).
+
+Point the package at a server with the `server` option:
+
+```latex
+\usepackage[output=svg, server=https://www.plantuml.com/plantuml]{plantuml}
+```
+
+Alternatively set the `PLANTUML_SERVER` environment variable (the package option
+takes precedence over it):
+
+```sh
+export PLANTUML_SERVER=https://www.plantuml.com/plantuml
+```
+
+You can run your own server, for example with Docker:
+
+```sh
+docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
+# then use server=http://localhost:8080
+```
+
+Notes:
+
+- Only `output=png` and `output=svg` use the server. `output=latex` (TikZ, the
+  default) cannot be produced by a server and always uses the local
+  `plantuml.jar`, so keep `PLANTUML_JAR` set if you need latex output.
+- See [`example-server--png.tex`](example-server--png.tex) and
+  [`example-server--svg.tex`](example-server--svg.tex) for complete examples.
+- The diagram source is sent hex-encoded in the request URL, so a very large
+  diagram may hit the server's URL-length limit.
 
 ## Installation
 

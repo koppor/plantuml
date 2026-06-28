@@ -50,6 +50,18 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 
 ![Minimal example](example-minimal.png)
 
+The `@startuml` and `@enduml` markers are optional: when the diagram body does not
+contain them, PlantUML adds them automatically ([issue #4](https://github.com/koppor/plantuml/issues/4)),
+so this is equivalent:
+
+```latex
+\begin{plantuml}
+Alice -> Bob: test
+\end{plantuml}
+```
+
+See [`example-without-startuml.tex`](example-without-startuml.tex).
+
 ### Example Class Relations Rendered Using SVG
 
 **LaTeX source:**

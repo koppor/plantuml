@@ -141,6 +141,19 @@ Notes:
 - The diagram source is sent hex-encoded in the request URL, so a very large
   diagram may hit the server's URL-length limit.
 
+### Caching
+
+Generated diagrams are cached by a hash of their source, similar to
+[minted](https://www.ctan.org/pkg/minted) and
+[memoize](https://www.ctan.org/pkg/memoize). Each diagram is written to
+`plantuml-<hash>-converted-to.<ext>`, and PlantUML (or the server) is invoked
+only when no file for that hash exists yet. Unchanged diagrams — as well as
+repeated or reordered ones — reuse the cached output, so recompiles are fast and
+only edited diagrams are regenerated. The `-converted-to` suffix means the
+standard [TeX `.gitignore`](https://github.com/github/gitignore/blob/main/TeX.gitignore)
+already ignores these files (via `*-converted-to.*`), so no extra entry is
+needed. Delete the `plantuml-*-converted-to.*` files to clear the cache.
+
 ## Installation
 
 Your latex distribution should take care.

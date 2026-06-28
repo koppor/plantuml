@@ -52,7 +52,9 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server)
   -- cache file identically for the same diagram (#2).
   local hash = md5lib.sumhexa(sourceContent):upper()
   local ext = (mode == "latex") and "tex" or mode
-  local plantUmlTargetFilename = iodir .. "plantuml-" .. hash .. "." .. ext
+  -- The "-converted-to." infix means the standard TeX .gitignore (*-converted-to.*)
+  -- already ignores these cache files, so users need no extra .gitignore entry (#2).
+  local plantUmlTargetFilename = iodir .. "plantuml-" .. hash .. "-converted-to." .. ext
 
   -- A non-empty output for this hash means the diagram was rendered before.
   local function fileNonEmpty(path)

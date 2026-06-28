@@ -288,7 +288,9 @@
       }%
       \IfFileExists{\plantuml@src}{%
         \edef\plantuml@hash{\pdf@filemdfivesum{\plantuml@src}}%
-        \edef\plantuml@tgt{plantuml-\plantuml@hash.\plantuml@ext}%
+        % The "-converted-to." infix makes these cache files match the standard
+        % TeX .gitignore pattern *-converted-to.*, so no custom entry is needed (#2).
+        \edef\plantuml@tgt{plantuml-\plantuml@hash-converted-to.\plantuml@ext}%
         \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
           \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
         }{%
@@ -383,16 +385,16 @@
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
     \ifthenelse{\equal{\PlantUmlMode}{latex}}{
-      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash.tex}{%
+      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}{%
         \begin{adjustbox}{max width=\linewidth}
-          \input{\PlantUmlIODir plantuml-\PlantUmlHash.tex}
+          \input{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}
         \end{adjustbox}%
       }{%
         \plantuml@notgenerated
       }%
     }{
-      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash.\PlantUmlMode}{%
-        \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir plantuml-\PlantUmlHash.\PlantUmlMode}%
+      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}{%
+        \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}%
       }{%
         \plantuml@notgenerated
       }%

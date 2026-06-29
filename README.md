@@ -37,12 +37,15 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 \usepackage{plantuml}
 \begin{document}
 \begin{plantuml}
-  @startuml
-  Alice -> Bob: test
-  @enduml
+Alice -> Bob: test
 \end{plantuml}
 \end{document}
 ```
+
+`@startuml` and `@enduml` are optional: when the diagram body omits them,
+PlantUML adds them automatically ([issue #4](https://github.com/koppor/plantuml/issues/4)),
+so the examples here leave them out. You may still write them explicitly if you
+prefer.
 
 **Compilation:** `lualatex -shell-escape example-minimal` (or `pdflatex -shell-escape example-minimal`)
 
@@ -64,13 +67,11 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 \usepackage[output=svg]{plantuml}
 \begin{document}
 \begin{plantuml}
-@startuml
 class Car
 
 Driver - Car : drives >
 Car *- Wheel : have 4 >
 Car -- Person : < owns
-@enduml
 \end{plantuml}
 \end{document}
 ```
@@ -87,13 +88,11 @@ Car -- Person : < owns
 \usepackage[output=svg]{plantuml}
 \begin{document}
 \begin{plantuml}
-@startuml
 class Car
 
 Driver - Car : drives >
 Car *- Wheel : have 4 >
 Car -- Person : < owns
-@enduml
 \end{plantuml}
 \end{document}
 ```

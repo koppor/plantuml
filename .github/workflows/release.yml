@@ -74,7 +74,7 @@ jobs:
         run: pdflatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: pdflatex -shell-escape example-multiple-diagrams-svg
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: pdflatex-pdfs
           path: example-*.pdf

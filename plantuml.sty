@@ -31,6 +31,14 @@
 
 \RequirePackage{adjustbox}
 
+% \captionof is needed for the in-place (non-floating) caption option (#8). KOMA
+% classes and the caption package already provide it; only pull in the tiny
+% capt-of otherwise (loading capt-of when \captionof exists would clash, e.g.
+% with KOMA). Load caption/koma before plantuml if you customize captions.
+\makeatletter
+\@ifundefined{captionof}{\RequirePackage{capt-of}}{}
+\makeatother
+
 \newcounter{PlantUmlFigureNumberSVG}
 \def\UMLcountUp{\stepcounter{PlantUmlFigureNumberSVG} \def\PlantUMLJobname{PlantUML\thePlantUmlFigureNumberSVG}}
 
@@ -60,6 +68,78 @@
   server .initial:n = ,
 }
 \ProcessKeysOptions { plantuml }
+\ExplSyntaxOff
+
+% Per-diagram options (#8):
+%   caption={...}  add a caption (numbered, \ref-able as a figure)
+%   label={...}    set a \label for the caption
+%   float          place the diagram in a floating figure (default placement tbp;
+%   float=htbp     a value sets the placement; float=H needs the float package)
+% Without `float` the diagram and its caption are typeset in place (no floating),
+% like listings' caption= -- which is what most users want.
+%
+% \plantumlinput takes these as an optional [..] argument. The plantuml
+% environment cannot (an optional argument on a verbatim environment without a
+% mandatory argument is not supported by fancyvrb), so options for the next
+% environment are set with \plantumlset{..}, in the spirit of \lstset.
+\ExplSyntaxOn
+\tl_new:N \l_plantuml_caption_tl
+\tl_new:N \l_plantuml_label_tl
+\tl_new:N \l_plantuml_float_tl
+\keys_define:nn { plantuml / diagram } {
+  caption .tl_set:N = \l_plantuml_caption_tl ,
+  label   .tl_set:N = \l_plantuml_label_tl ,
+  float   .tl_set:N = \l_plantuml_float_tl ,
+  float   .default:n = tbp ,
+  unknown .code:n =
+    \msg_warning:nnx { plantuml } { unknown-option } { \l_keys_key_str } ,
+}
+\msg_new:nnn { plantuml } { unknown-option }
+  { Unknown~plantuml~option~'#1'~ignored. }
+% \plantumlResetOpts: clear the per-diagram options (run after each diagram so a
+% caption/label does not leak to the next one).
+\cs_new_protected:Npn \plantumlResetOpts {
+  \tl_clear:N \l_plantuml_caption_tl
+  \tl_clear:N \l_plantuml_label_tl
+  \tl_clear:N \l_plantuml_float_tl
+}
+% \plantumlParseOpts{<keyvals>}: reset and parse the per-diagram options. Exposed
+% as the public \plantumlset for configuring the next plantuml environment.
+\cs_new_protected:Npn \plantumlParseOpts #1 {
+  \plantumlResetOpts
+  \keys_set:nn { plantuml / diagram } { #1 }
+}
+\cs_new_eq:NN \plantumlset \plantumlParseOpts
+% \begin{figure} parses the placement as literal characters, so it must be
+% expanded from the tl var first (otherwise figure sees a control sequence).
+\cs_new_protected:Npn \plantuml_begin_figure:n #1 { \begin { figure } [ #1 ] }
+% \plantumlEmit: typeset the just-generated diagram (\plantuml@includeresult)
+% honoring the caption/label/float options. \use:c reaches the @-named macro.
+\cs_new_protected:Npn \plantumlEmit {
+  \tl_if_empty:NTF \l_plantuml_float_tl
+    {
+      % In place, no float; caption (if any) goes below, like listings.
+      \bool_lazy_and:nnTF
+        { \tl_if_empty_p:N \l_plantuml_caption_tl }
+        { \tl_if_empty_p:N \l_plantuml_label_tl }
+        { \use:c { plantuml@includeresult } }
+        {
+          \par \begingroup \centering
+            \use:c { plantuml@includeresult } \par
+            \captionof { figure } { \l_plantuml_caption_tl }
+            \tl_if_empty:NF \l_plantuml_label_tl { \label { \l_plantuml_label_tl } }
+          \endgroup \par
+        }
+    }
+    {
+      \exp_args:NV \plantuml_begin_figure:n \l_plantuml_float_tl
+        \centering
+        \use:c { plantuml@includeresult }
+        \tl_if_empty:NF \l_plantuml_caption_tl { \caption { \l_plantuml_caption_tl } }
+        \tl_if_empty:NF \l_plantuml_label_tl { \label { \l_plantuml_label_tl } }
+      \end { figure }
+    }
+}
 \ExplSyntaxOff
 
 %hint from https://tex.stackexchange.com/a/86355/9075
@@ -447,6 +527,8 @@
     \plantuml@readjar
     \plantuml@readoutdir
   \fi
+  % Caption/label/float options come from a preceding \plantumlset (#8); an
+  % optional argument cannot be read here without breaking the verbatim capture.
   \NewDocumentEnvironment{plantuml}{}{%
     \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
   {%
@@ -467,7 +549,8 @@
     \else
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
-    \plantuml@includeresult
+    \plantumlEmit
+    \plantumlResetOpts
   }
 \or
   \message{Restricted shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.}
@@ -481,11 +564,13 @@
 % the output mode and reuses the same caching, server, -output-directory, and
 % missing-diagram handling as the plantuml environment (#3). The file is read
 % relative to the current working directory (like \write18), so paths in
-% subdirectories work when compiling from the project root.
-\NewDocumentCommand{\plantumlinput}{m}{%
+% subdirectories work when compiling from the project root. Accepts the same
+% optional [caption=...,label=...,float=...] argument as the environment (#8).
+\NewDocumentCommand{\plantumlinput}{O{} m}{%
+  \plantumlParseOpts{#1}%
   \ifluatex
     \directlua{
-      local sourceFile=\luastring{#1}
+      local sourceFile=\luastring{#2}
       local plantUmlMode=\luastring{\PlantUmlMode}
       local plantUmlIODir=\luastring{\PlantUmlIODir}
       local plantUmlServer=\luastring{\PlantUmlServer}
@@ -495,9 +580,10 @@
       tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
     }%
   \else
-    \plantuml@convertfile{#1}{\PlantUmlMode}%
+    \plantuml@convertfile{#2}{\PlantUmlMode}%
   \fi
-  \plantuml@includeresult
+  \plantumlEmit
+  \plantumlResetOpts
 }
 
 % --- Global preamble (#5) -----------------------------------------------------

@@ -1,0 +1,36 @@
+% Demonstrates captions and labels on diagrams. See #8.
+%
+% \plantumlinput takes the options as an optional [..] argument. The plantuml
+% environment instead reads them from a preceding \plantumlset (a verbatim
+% environment cannot carry an optional argument), in the spirit of \lstset.
+%
+% Without `float` the diagram and its caption are typeset in place (no floating),
+% which is what most people want. Pass float (optionally float=<placement>) to put
+% the diagram in a real figure float instead.
+\documentclass{scrartcl}
+% Default output is latex/TikZ -- vector graphics, no external converter needed.
+\usepackage{plantuml}
+
+\begin{document}
+
+Figure~\ref{fig:seq} is captioned in place; Figure~\ref{fig:car} floats.
+
+% In-place caption (no floating), configured for the next environment.
+\plantumlset{caption={A sequence diagram, captioned in place.}, label={fig:seq}}
+\begin{plantuml}
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+\end{plantuml}
+
+% A floating figure with caption and label.
+\plantumlset{float, caption={A class diagram in a floating figure.}, label={fig:car}}
+\begin{plantuml}
+class Car
+Driver - Car : drives >
+Car *- Wheel : have 4 >
+\end{plantuml}
+
+% \plantumlinput takes the same options as an optional argument.
+\plantumlinput[caption={Rendered from a file.}, label={fig:file}]{example-input-file.puml}
+
+\end{document}

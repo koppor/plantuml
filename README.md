@@ -201,6 +201,37 @@ source instead; this styles the usual marker-less diagrams, but a server diagram
 that spells out its own `@startuml`/`@enduml` keeps the default style (render it
 through the local jar if you need the preamble applied).
 
+### Captions and Labels
+
+Diagrams can carry a numbered, `\ref`-able caption ([issue #8](https://github.com/koppor/plantuml/issues/8)).
+The options are:
+
+- `caption={...}` — the caption text,
+- `label={...}` — a `\label` for cross-references,
+- `float` — place the diagram in a floating `figure` (optional placement, e.g.
+  `float=htbp`; `float=H` needs the `float` package). Without `float` the diagram
+  and its caption are typeset **in place** (no floating), like listings'
+  `caption=` — which avoids the erratic placement of a bare `figure`.
+
+`\plantumlinput` takes these as an optional argument:
+
+```latex
+\plantumlinput[caption={A diagram from a file.}, label={fig:demo}]{diagram.puml}
+```
+
+The `plantuml` environment can't take an optional argument (a verbatim
+environment without a mandatory argument can't carry one), so set the options for
+the next environment with `\plantumlset`, in the spirit of `\lstset`:
+
+```latex
+\plantumlset{caption={A sequence diagram.}, label={fig:seq}}
+\begin{plantuml}
+Alice -> Bob: hi
+\end{plantuml}
+```
+
+See [`example-caption.tex`](example-caption.tex).
+
 ## Installation
 
 Your latex distribution should take care.

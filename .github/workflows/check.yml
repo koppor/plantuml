@@ -41,7 +41,7 @@ jobs:
           cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
       - name: Set PLANTUML_JAR
         run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:
           packages: graphviz inkscape
@@ -95,7 +95,7 @@ jobs:
         ports:
           - 8080:8080
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       # inkscape converts the SVG diagram to PDF; graphviz/java are not needed
       # locally because the server does the rendering.
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1

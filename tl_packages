@@ -34,6 +34,7 @@ luatexbase
 moloch
 pdftexcmds
 pgf
+pgfopts
 plantuml
 scheme-minimal
 standalone

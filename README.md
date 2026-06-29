@@ -45,7 +45,7 @@ Alice -> Bob: test
 `@startuml` and `@enduml` are optional: when the diagram body omits them,
 PlantUML adds them automatically ([issue #4](https://github.com/koppor/plantuml/issues/4)),
 so the examples here leave them out. You may still write them explicitly if you
-prefer (see the class-relations example below).
+prefer.
 
 **Compilation:** `lualatex -shell-escape example-minimal` (or `pdflatex -shell-escape example-minimal`)
 
@@ -67,13 +67,11 @@ prefer (see the class-relations example below).
 \usepackage[output=svg]{plantuml}
 \begin{document}
 \begin{plantuml}
-@startuml
 class Car
 
 Driver - Car : drives >
 Car *- Wheel : have 4 >
 Car -- Person : < owns
-@enduml
 \end{plantuml}
 \end{document}
 ```
@@ -90,19 +88,14 @@ Car -- Person : < owns
 \usepackage[output=svg]{plantuml}
 \begin{document}
 \begin{plantuml}
-@startuml
 class Car
 
 Driver - Car : drives >
 Car *- Wheel : have 4 >
 Car -- Person : < owns
-@enduml
 \end{plantuml}
 \end{document}
 ```
-
-This example keeps the explicit `@startuml`/`@enduml` markers to show that the
-classic PlantUML form is still accepted.
 
 **Compilation:** `lualatex -shell-escape example-class-relations` (or `pdflatex -shell-escape example-class-relations`)
 

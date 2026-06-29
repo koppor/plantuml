@@ -81,7 +81,9 @@ jobs:
           done
       - uses: actions/upload-artifact@v7
         with:
-          name: output-directory-${{ matrix.engine }}
+          # "local" (rendered by the local plantuml.jar), to parallel the
+          # server-* artifacts from the server job.
+          name: local-${{ matrix.engine }}
           path: out/*.pdf
   server:
     # Regression test for #6: render diagrams through a PlantUML server instead of

@@ -72,6 +72,9 @@ jobs:
             example-multiple-diagrams-svg \
             example-preamble; do
             echo "::group::${{ matrix.engine }} -output-directory=out $example"
+            # Compile twice: the second pass resolves cross-references (\ref). The
+            # PlantUML/diagram cache makes the second pass nearly free.
+            ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error -output-directory=out "$example"
             ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error -output-directory=out "$example"
             echo "::endgroup::"
             test -f "out/$example.pdf" || { echo "::error::out/$example.pdf was not produced"; exit 1; }

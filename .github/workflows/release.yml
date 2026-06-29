@@ -59,7 +59,10 @@ jobs:
         with:
            package_file: tl_packages
       - name: example-caption
-        run: pdflatex -shell-escape example-caption
+        # Twice so the cross-references (\ref) resolve.
+        run: |
+          pdflatex -shell-escape example-caption
+          pdflatex -shell-escape example-caption
       - name: example-class-relations--latex
         run: pdflatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg
@@ -119,7 +122,10 @@ jobs:
         with:
            package_file: tl_packages
       - name: example-caption
-        run: lualatex -shell-escape example-caption
+        # Twice so the cross-references (\ref) resolve.
+        run: |
+          lualatex -shell-escape example-caption
+          lualatex -shell-escape example-caption
       - name: example-class-relations--latex
         run: lualatex -shell-escape example-class-relations--latex
       - name: example-class-relations--svg

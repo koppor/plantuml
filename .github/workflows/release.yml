@@ -76,7 +76,7 @@ jobs:
         run: pdflatex -shell-escape example-multiple-diagrams-svg
       - name: example-without-startuml
         run: pdflatex -shell-escape example-without-startuml
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: pdflatex-pdfs
           path: example-*.pdf

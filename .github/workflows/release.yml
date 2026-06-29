@@ -58,6 +58,8 @@ jobs:
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
+      - name: example-beamer
+        run: pdflatex -shell-escape example-beamer
       - name: example-caption
         # Twice so the cross-references (\ref) resolve.
         run: |
@@ -123,6 +125,8 @@ jobs:
         uses: zauguin/install-texlive@v4
         with:
            package_file: tl_packages
+      - name: example-beamer
+        run: lualatex -shell-escape example-beamer
       - name: example-caption
         # Twice so the cross-references (\ref) resolve.
         run: |

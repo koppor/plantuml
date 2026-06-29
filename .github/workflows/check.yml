@@ -60,6 +60,7 @@ jobs:
         run: |
           mkdir -p out
           for example in \
+            example-beamer \
             example-caption \
             example-class-relations--latex \
             example-class-relations--svg \

@@ -249,6 +249,29 @@ defaults to `\sffamily` so the text matches the boxes. Change it if needed:
 `png`/`svg` output is unaffected (PlantUML renders the text itself), so it is the
 simplest choice when exact text fit matters. See [`example-mindmap.tex`](example-mindmap.tex).
 
+### Beamer
+
+The package works in `beamer` ([issue #11](https://github.com/koppor/plantuml/issues/11)).
+The only requirement is that any frame containing a `plantuml` environment is
+declared `[fragile]`, because the environment captures its body verbatim:
+
+```latex
+\documentclass{beamer}
+\usetheme{moloch}
+\usepackage{plantuml}
+\begin{document}
+\begin{frame}[fragile]{PlantUML in Beamer}
+\begin{plantuml}
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+\end{plantuml}
+\end{frame}
+\end{document}
+```
+
+Without `[fragile]` you get errors such as `Paragraph ended before
+\beamer@doframe was complete`. See [`example-beamer.tex`](example-beamer.tex).
+
 ## Installation
 
 Your latex distribution should take care.

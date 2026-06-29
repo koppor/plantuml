@@ -1,0 +1,30 @@
+% Demonstrates a global PlantUML preamble (skinparam styling) applied to every
+% diagram, so the styling need not be repeated in each diagram. See #5.
+%
+% Here the preamble is written inline with the plantumlpreamble environment;
+% alternatively, \plantumlpreamblefile{<file>} points at a style file. The
+% styling below turns the colorful default into a print-friendly black & white.
+\documentclass{scrartcl}
+\usepackage[output=png]{plantuml}
+
+\begin{document}
+
+% Applies to all diagrams below. Omit @startuml/@enduml in the diagrams so the
+% preamble also takes effect on the PlantUML server (it is prepended there).
+\begin{plantumlpreamble}
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam defaultFontName sans-serif
+\end{plantumlpreamble}
+
+\plantumlinput{example-input-file.puml}
+
+\begin{plantuml}
+class Car
+Driver - Car : drives >
+Car *- Wheel : have 4 >
+\end{plantuml}
+
+\end{document}

@@ -68,7 +68,8 @@ jobs:
             example-component-diagram \
             example-input-file \
             example-minimal \
-            example-multiple-diagrams-svg; do
+            example-multiple-diagrams-svg \
+            example-preamble; do
             echo "::group::${{ matrix.engine }} -output-directory=out $example"
             ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error -output-directory=out "$example"
             echo "::endgroup::"

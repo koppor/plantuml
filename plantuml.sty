@@ -147,8 +147,16 @@
 \makeatletter
 
 % Content hash of the current diagram; the generated file is plantuml-<hash>.<ext>
-% (#2). Set per diagram by the converter; default empty as a safety net.
+% (#2). Set per diagram by the converter; default empty as a safety net. With a
+% global preamble (#5) the hash is "<source-md5>-<preamble-md5>".
 \newcommand{\PlantUmlHash}{}
+
+% Global PlantUML preamble (skinparam etc.) applied to every diagram (#5). Two
+% paths, like the diagram source: ...Md5 for \pdf@filemdfivesum (located via TeX's
+% input search, so a relative name works under -output-directory) and ...IO for
+% the shell side (-config / hex dump / lua io.open). Empty means no preamble.
+\def\PlantUmlPreambleMd5{}
+\def\PlantUmlPreambleIO{}
 
 % \plantuml@notgenerated: visible, non-fatal placeholder typeset in the document
 % when a diagram could not be generated (e.g. PLANTUML_JAR unset, no server, or
@@ -339,6 +347,18 @@
     }%
     \IfFileExists{\plantuml@srcmd5}{%
       \edef\plantuml@hash{\pdf@filemdfivesum{\plantuml@srcmd5}}%
+      % Fold the global preamble (#5) into the hash so changing it rebuilds every
+      % diagram. \plantuml@usepre records whether a preamble is in effect.
+      \def\plantuml@usepre{0}%
+      \edef\plantuml@pretmp{\PlantUmlPreambleMd5}%
+      \ifx\plantuml@pretmp\@empty\else
+        \IfFileExists{\PlantUmlPreambleMd5}{%
+          \def\plantuml@usepre{1}%
+          \edef\plantuml@hash{\plantuml@hash-\pdf@filemdfivesum{\PlantUmlPreambleMd5}}%
+        }{%
+          \PackageWarning{plantuml}{Preamble file \PlantUmlPreambleMd5\space not found; ignoring}%
+        }%
+      \fi
       % The "-converted-to." infix makes these cache files match the standard
       % TeX .gitignore pattern *-converted-to.*, so no custom entry is needed (#2).
       \edef\plantuml@tgt{plantuml-\plantuml@hash-converted-to.\plantuml@ext}%
@@ -356,8 +376,13 @@
         \ifthenelse{\equal{\plantuml@useserver}{1}}{%
           % Server backend: GET <server>/<format>/~h<hex-source> via curl.
           % \pdf@filedump emits the file as (uppercase) hex, which the server
-          % accepts after the ~h marker.
+          % accepts after the ~h marker. With a preamble (#5) the server has no
+          % -config, so prepend it (hex(preamble) + "0A" newline + hex(source)).
           \edef\plantuml@hex{\pdf@filedump{0}{\pdf@filesize{\plantuml@srcio}}{\plantuml@srcio}}%
+          \ifthenelse{\equal{\plantuml@usepre}{1}}{%
+            \edef\plantuml@prehex{\pdf@filedump{0}{\pdf@filesize{\PlantUmlPreambleIO}}{\PlantUmlPreambleIO}}%
+            \edef\plantuml@hex{\plantuml@prehex 0A\plantuml@hex}%
+          }{}%
           \edef\plantuml@cmd{%
             curl -sS -f -o "\PlantUmlIODir\plantuml@tgt"%
             \space "\PlantUmlServer/\plantuml@topt/\plantuml@hexmarker\plantuml@hex"}%
@@ -365,10 +390,17 @@
           \ifx\plantuml@jar\@empty
             \PackageWarning{plantuml}{PLANTUML_JAR not set; cannot run PlantUML}%
           \else
+            % Jar backend applies the preamble via PlantUML's -config (#5).
+            \ifthenelse{\equal{\plantuml@usepre}{1}}{%
+              \edef\plantuml@configopt{\space -config "\PlantUmlPreambleIO"}%
+            }{%
+              \let\plantuml@configopt\@empty
+            }%
             \edef\plantuml@cmd{%
               \PlantUmlEnvReset
               java -Djava.awt.headless=true -jar "\plantuml@jar"%
-              \space -charset UTF-8 -pipe -t\plantuml@topt
+              \space -charset UTF-8\plantuml@configopt
+              \space -pipe -t\plantuml@topt
               \space < "\plantuml@srcio" > "\PlantUmlIODir\plantuml@tgt"}%
           \fi
         }%
@@ -427,8 +459,9 @@
         local plantUmlMode=\luastring{\PlantUmlMode}
         local plantUmlIODir=\luastring{\PlantUmlIODir}
         local plantUmlServer=\luastring{\PlantUmlServer}
+        local plantUmlPreamble=\luastring{\PlantUmlPreambleIO}
         require("plantuml.lua")
-        local hash = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer)
+        local hash = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer, nil, plantUmlPreamble)
         tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
       }
     \else
@@ -456,13 +489,40 @@
       local plantUmlMode=\luastring{\PlantUmlMode}
       local plantUmlIODir=\luastring{\PlantUmlIODir}
       local plantUmlServer=\luastring{\PlantUmlServer}
+      local plantUmlPreamble=\luastring{\PlantUmlPreambleIO}
       require("plantuml.lua")
-      local hash = convertPlantUmlToTikz("", plantUmlMode, plantUmlIODir, plantUmlServer, sourceFile)
+      local hash = convertPlantUmlToTikz("", plantUmlMode, plantUmlIODir, plantUmlServer, sourceFile, plantUmlPreamble)
       tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
     }%
   \else
     \plantuml@convertfile{#1}{\PlantUmlMode}%
   \fi
   \plantuml@includeresult
+}
+
+% --- Global preamble (#5) -----------------------------------------------------
+% A preamble (skinparam etc.) applied to every diagram. Set it from a file with
+% \plantumlpreamblefile, or write it inline in the plantumlpreamble environment.
+% The local jar applies it via PlantUML's -config; the server prepends it to the
+% source (which requires the diagram to omit @startuml -- the default since #4).
+
+% \plantumlpreamblefile{<file>}: use <file> as the global preamble. The file is a
+% real source-tree file, so both the md5 and the shell side use its path as-is.
+\newcommand{\plantumlpreamblefile}[1]{%
+  \gdef\PlantUmlPreambleMd5{#1}%
+  \gdef\PlantUmlPreambleIO{#1}%
+}
+
+% plantumlpreamble environment: capture an inline preamble verbatim into a file
+% and use it. Like the diagram source, it is written through \CurrentDirectory (so
+% it lands in any -output-directory) and read back via the \PlantUmlIODir prefix.
+% Name kept as *-plantuml.* so the existing .gitignore entry covers it.
+\def\PlantUmlPreambleName{\myjobname-plantuml.preamble}
+\NewDocumentEnvironment{plantumlpreamble}{}{%
+  \VerbatimOut{"\CurrentDirectory\PlantUmlPreambleName"}%
+}{%
+  \endVerbatimOut
+  \gdef\PlantUmlPreambleMd5{\PlantUmlPreambleName}%
+  \xdef\PlantUmlPreambleIO{\PlantUmlIODir\PlantUmlPreambleName}%
 }
 \makeatother

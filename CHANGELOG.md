@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-29
+
 ### Added
 
 - Added support for `pdflatex`. PlantUML is now driven directly via shell escape, mirroring the LuaLaTeX path (same `plantuml.jar` invocation and MD5-based source caching). [#1](https://github.com/koppor/plantuml/issues/1)
@@ -127,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Initial public release
 
-[Unreleased]: https://github.com/koppor/plantuml/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/koppor/plantuml/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/koppor/plantuml/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/koppor/plantuml/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/koppor/plantuml/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/koppor/plantuml/compare/0.4.0...0.5.0

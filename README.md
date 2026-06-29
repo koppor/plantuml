@@ -195,10 +195,11 @@ form affects every diagram that follows (set it once near the top of the
 document). The preamble is folded into the diagram cache key, so changing it
 regenerates the diagrams. See [`example-preamble.tex`](example-preamble.tex).
 
-The local jar applies the preamble via PlantUML's `-config`. The PlantUML server
-has no such option, so the preamble is prepended to the source; for it to take
-effect on the server, the diagrams must omit `@startuml`/`@enduml` (the default —
-see the [minimal example](#minimal-example)).
+The local jar applies the preamble to every diagram via PlantUML's `-config`. The
+PlantUML server has no such option, so there the preamble is prepended to the
+source instead; this styles the usual marker-less diagrams, but a server diagram
+that spells out its own `@startuml`/`@enduml` keeps the default style (render it
+through the local jar if you need the preamble applied).
 
 ## Installation
 

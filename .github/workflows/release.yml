@@ -158,7 +158,8 @@ jobs:
         run: |
           mkdir build
           mv example-*.pdf build/
-          mv example-*.png build/
+          # The committed README preview images are SVG (browsers render them).
+          mv example-*.svg build/
           cp -r README.md .github/_config.yml build/
       - name: Publish to GitHub pages
         if: github.ref == 'refs/heads/main'

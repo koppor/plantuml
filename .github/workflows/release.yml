@@ -77,6 +77,8 @@ jobs:
         run: pdflatex -shell-escape example-component-diagram
       - name: example-input-file
         run: pdflatex -shell-escape example-input-file
+      - name: example-mindmap
+        run: pdflatex -shell-escape example-mindmap
       - name: example-minimal
         run: pdflatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
@@ -140,6 +142,8 @@ jobs:
         run: lualatex -shell-escape example-component-diagram
       - name: example-input-file
         run: lualatex -shell-escape example-input-file
+      - name: example-mindmap
+        run: lualatex -shell-escape example-mindmap
       - name: example-minimal
         run: lualatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg

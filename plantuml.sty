@@ -152,6 +152,13 @@
 \let\PlantUmlServer\l_plantuml_server
 \ExplSyntaxOff
 
+% Font applied to latex/TikZ diagram text. PlantUML measures and lays out boxes
+% with a sans-serif font, so rendering the TikZ text sans-serif makes it fit the
+% boxes; the document's default (serif) font otherwise causes uneven margins (#14).
+% Override with \renewcommand (e.g. \rmfamily, or to match a serif
+% skinparam defaultFontName); set it empty to use the surrounding document font.
+\newcommand{\PlantUmlTikzFont}{\sffamily}
+
 % PlantUML runs as a shell-escape subprocess, which executes in the real
 % working directory. LaTeX's own writes (\openout) and reads (\input,
 % \IfFileExists, ...) are instead redirected into -output-directory when one is
@@ -265,7 +272,9 @@
   \ifthenelse{\equal{\PlantUmlMode}{latex}}{%
     \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}{%
       \begin{adjustbox}{max width=\linewidth}%
-        \input{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}%
+        % \PlantUmlTikzFont (default \sffamily) makes the TikZ text match the
+        % font PlantUML measured the boxes with, avoiding uneven margins (#14).
+        {\PlantUmlTikzFont\input{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}}%
       \end{adjustbox}%
     }{%
       \plantuml@notgenerated

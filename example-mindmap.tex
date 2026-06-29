@@ -1,0 +1,20 @@
+% A mindmap rendered as latex/TikZ (the default). Diagram types other than the
+% default UML need their own @start.../@end... markers, so they are kept here.
+%
+% The package renders the TikZ text sans-serif by default (\PlantUmlTikzFont) so
+% it matches the font PlantUML used to size the boxes; otherwise the document's
+% serif font leaves uneven margins inside the boxes (#14). To use a different
+% font, \renewcommand\PlantUmlTikzFont (e.g. \rmfamily), or render as png/svg.
+\documentclass{scrartcl}
+\usepackage{plantuml}
+\begin{document}
+\begin{plantuml}
+@startmindmap
+* Efficiency determination/\n Power measurement
+** by measurement
+*** direct measurement
+*** indirect measurement
+*** calorimetric measurement
+@endmindmap
+\end{plantuml}
+\end{document}

@@ -232,6 +232,23 @@ Alice -> Bob: hi
 
 See [`example-caption.tex`](example-caption.tex).
 
+### Diagram Font (latex/TikZ output)
+
+With the default `output=latex` (TikZ), PlantUML computes each box's size using a
+**sans-serif** font, then emits TikZ that your document typesets. If that text is
+set in the document's default (serif) font, it doesn't fit the boxes and the
+margins look uneven ([issue #14](https://github.com/koppor/plantuml/issues/14)).
+The package therefore renders the diagram text with `\PlantUmlTikzFont`, which
+defaults to `\sffamily` so the text matches the boxes. Change it if needed:
+
+```latex
+\renewcommand\PlantUmlTikzFont{\rmfamily}  % serif, e.g. to match a serif skinparam
+\renewcommand\PlantUmlTikzFont{}           % use the surrounding document font
+```
+
+`png`/`svg` output is unaffected (PlantUML renders the text itself), so it is the
+simplest choice when exact text fit matters. See [`example-mindmap.tex`](example-mindmap.tex).
+
 ## Installation
 
 Your latex distribution should take care.

@@ -3,8 +3,8 @@
 \usepackage{graphics}
 
 \usepackage[output=latex]{plantuml}
-% Have sans serif font at each tikz diagram. Source: https://tex.stackexchange.com/a/4888/9075
-\tikzstyle{every picture}+=[font=\sffamily]
+% The package renders TikZ diagram text sans-serif by default (\PlantUmlTikzFont)
+% so it matches PlantUML's box metrics; no \tikzstyle font tweak needed (#14).
 
 \begin{document}
 \begin{plantuml}

@@ -68,6 +68,7 @@ jobs:
             example-class-visibility--svg \
             example-component-diagram \
             example-input-file \
+            example-mindmap \
             example-minimal \
             example-multiple-diagrams-svg \
             example-preamble; do

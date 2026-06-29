@@ -1,0 +1,11 @@
+% Renders a diagram from an existing PlantUML source file with \plantumlinput,
+% analogous to \inputminted (minted) and \lstinputlisting (listings). See #3.
+%
+% The file is read relative to the current working directory; a path in a
+% subdirectory (e.g. diagrams/foo.puml) works too when compiling from the
+% project root. The file needs no @startuml/@enduml (PlantUML adds them; see #4).
+\documentclass{scrartcl}
+\usepackage{plantuml}
+\begin{document}
+\plantumlinput{example-input-file.puml}
+\end{document}

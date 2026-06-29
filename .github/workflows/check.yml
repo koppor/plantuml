@@ -66,6 +66,7 @@ jobs:
             example-class-visibility--png \
             example-class-visibility--svg \
             example-component-diagram \
+            example-input-file \
             example-minimal \
             example-multiple-diagrams-svg; do
             echo "::group::${{ matrix.engine }} -output-directory=out $example"

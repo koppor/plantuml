@@ -174,6 +174,32 @@ standard [TeX `.gitignore`](https://github.com/github/gitignore/blob/main/TeX.gi
 already ignores these files (via `*-converted-to.*`), so no extra entry is
 needed. Delete the `plantuml-*-converted-to.*` files to clear the cache.
 
+### Global Preamble
+
+The default PlantUML style is colorful, which is not ideal for printouts. Instead
+of repeating `skinparam` settings in every diagram, set a **global preamble** once
+that is applied to all diagrams ([issue #5](https://github.com/koppor/plantuml/issues/5)).
+
+Write it inline with the `plantumlpreamble` environment:
+
+```latex
+\begin{plantumlpreamble}
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName sans-serif
+\end{plantumlpreamble}
+```
+
+…or keep it in a file and point at it with `\plantumlpreamblefile{<file>}`. Either
+form affects every diagram that follows (set it once near the top of the
+document). The preamble is folded into the diagram cache key, so changing it
+regenerates the diagrams. See [`example-preamble.tex`](example-preamble.tex).
+
+The local jar applies the preamble via PlantUML's `-config`. The PlantUML server
+has no such option, so the preamble is prepended to the source; for it to take
+effect on the server, the diagrams must omit `@startuml`/`@enduml` (the default —
+see the [minimal example](#minimal-example)).
+
 ## Installation
 
 Your latex distribution should take care.

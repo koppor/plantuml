@@ -76,6 +76,8 @@ jobs:
         run: pdflatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: pdflatex -shell-escape example-multiple-diagrams-svg
+      - name: example-preamble
+        run: pdflatex -shell-escape example-preamble
       - uses: actions/upload-artifact@v7
         with:
           name: pdflatex-pdfs
@@ -132,6 +134,8 @@ jobs:
         run: lualatex -shell-escape example-minimal.tex
       - name: example-multiple-diagrams-svg
         run: lualatex -shell-escape example-multiple-diagrams-svg
+      - name: example-preamble
+        run: lualatex -shell-escape example-preamble
       - name: Gather build artifacts
         run: |
           mkdir build

@@ -24,9 +24,14 @@ end
 --   directly instead of the generated <jobname>-plantuml.txt. Used by
 --   \plantumlinput to render a diagram from a file. The output is still
 --   content-addressed by the source's hash, so caching/server/etc. apply. (#3)
+-- @param preambleFile when given, a global PlantUML preamble (e.g. skinparam
+--   styling) applied to every diagram. The local jar applies it via -config; the
+--   server has no such option, so it is prepended to the source (which works when
+--   the diagram omits @startuml, as PlantUML then wraps preamble+body together).
+--   Its hash is folded into the output name so changing it rebuilds diagrams. (#5)
 -- @return the content hash of the diagram (so plantuml.sty can include the
 --   hash-named output file), or nil if the diagram could not be generated.
-function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile)
+function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambleFile)
   iodir = iodir or ""
   server = server or ""
   if server == "" then server = os.getenv("PLANTUML_SERVER") or "" end
@@ -58,10 +63,28 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile)
   local sourceContent = sourceHandle:read("*a")
   io.close(sourceHandle)
 
+  -- Optional global preamble (#5): read it so its hash can join the cache key and
+  -- its content can be applied to the diagram below.
+  local preambleContent
+  if preambleFile and preambleFile ~= "" then
+    local preambleHandle = io.open(preambleFile, "rb")
+    if preambleHandle then
+      preambleContent = preambleHandle:read("*a")
+      io.close(preambleHandle)
+    else
+      texio.write_nl("PlantUML preamble \"" .. preambleFile .. "\" could not be read; ignoring.")
+    end
+  end
+
   local md5lib = md5 or require("md5")
   -- uppercase to match pdfTeX's \pdf@filemdfivesum, so both engines name the
   -- cache file identically for the same diagram (#2).
   local hash = md5lib.sumhexa(sourceContent):upper()
+  -- Fold the preamble hash into the cache key so changing the preamble rebuilds
+  -- every diagram (#5).
+  if preambleContent then
+    hash = hash .. "-" .. md5lib.sumhexa(preambleContent):upper()
+  end
   local ext = (mode == "latex") and "tex" or mode
   -- The "-converted-to." infix means the standard TeX .gitignore (*-converted-to.*)
   -- already ignores these cache files, so users need no extra .gitignore entry (#2).
@@ -90,12 +113,22 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile)
   local cmd
   if useServer then
     -- Fetch the diagram from the PlantUML server: GET <server>/<format>/~h<hex>.
-    local url = server .. "/" .. mode .. "/~h" .. plantUmlHexEncode(sourceContent)
+    -- The server has no -config, so a preamble is prepended to the source (#5).
+    local effectiveSource = sourceContent
+    if preambleContent then
+      effectiveSource = preambleContent .. "\n" .. sourceContent
+    end
+    local url = server .. "/" .. mode .. "/~h" .. plantUmlHexEncode(effectiveSource)
     cmd = [[curl -sS -f -o "]] .. plantUmlTargetFilename .. [[" "]] .. url .. [["]]
   else
     -- Quote the jar path so a PLANTUML_JAR with spaces works, e.g. on Windows
     -- "C:\Program Files (x86)\PlantUML\plantuml.jar" (#7).
-    cmd = [[java -Djava.awt.headless=true -jar "]] .. plantUmlJar .. [[" -charset UTF-8 -pipe -t]]
+    cmd = [[java -Djava.awt.headless=true -jar "]] .. plantUmlJar .. [[" -charset UTF-8]]
+    -- Apply the global preamble via PlantUML's -config (#5).
+    if preambleContent then
+      cmd = cmd .. [[ -config "]] .. preambleFile .. [["]]
+    end
+    cmd = cmd .. " -pipe -t"
     if (mode == "latex") then
       cmd = cmd .. "latex:nopreamble"
     else

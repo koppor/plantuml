@@ -37,12 +37,15 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 \usepackage{plantuml}
 \begin{document}
 \begin{plantuml}
+!theme cerulean-outline
 Alice -> Bob: test
 \end{plantuml}
 \end{document}
 ```
 
-`@startuml` and `@enduml` are optional: when the diagram body omits them,
+The `!theme` line is optional; it picks a PlantUML colour theme (the examples use
+[`cerulean-outline`](https://the-lum.github.io/puml-themes-gallery/) for a cleaner
+look than the colourful default). `@startuml` and `@enduml` are optional: when the diagram body omits them,
 PlantUML adds them automatically ([issue #4](https://github.com/koppor/plantuml/issues/4)),
 so the examples here leave them out. You may still write them explicitly if you
 prefer.
@@ -51,7 +54,7 @@ prefer.
 
 **Result:**
 
-![Minimal example](example-minimal.png)
+![Minimal example](example-minimal.svg)
 
 ### Rendering from a File
 
@@ -88,6 +91,7 @@ See [`example-input-file.tex`](example-input-file.tex).
 \usepackage[output=svg]{plantuml}
 \begin{document}
 \begin{plantuml}
+!theme cerulean-outline
 class Car
 
 Driver - Car : drives >
@@ -109,6 +113,7 @@ Car -- Person : < owns
 \usepackage[output=svg]{plantuml}
 \begin{document}
 \begin{plantuml}
+!theme cerulean-outline
 class Car
 
 Driver - Car : drives >
@@ -122,7 +127,7 @@ Car -- Person : < owns
 
 **Result:**
 
-![Class relations rendered using SVG](example-class-relations--svg.png)
+![Class relations rendered using SVG](example-class-relations--svg.svg)
 
 ### Rendering via a PlantUML server
 

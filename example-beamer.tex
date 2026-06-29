@@ -1,0 +1,19 @@
+% PlantUML in a Beamer presentation (#11).
+%
+% The only requirement is that the frame is declared [fragile]: the plantuml
+% environment captures its body verbatim, and Beamer needs [fragile] for frames
+% that contain verbatim material. Without it you get errors like
+% "Paragraph ended before \beamer@doframe was complete".
+\documentclass{beamer}
+\usetheme{moloch}
+\usepackage{plantuml}
+\begin{document}
+
+\begin{frame}[fragile]{PlantUML in Beamer}
+\begin{plantuml}
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+\end{plantuml}
+\end{frame}
+
+\end{document}

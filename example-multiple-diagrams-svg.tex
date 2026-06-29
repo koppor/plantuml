@@ -12,7 +12,6 @@
 \begin{document}
 
 	\begin{plantuml}
-		@startuml
 		() "Interface 2" as I2
 		() "Interface 3" as I3
 
@@ -25,18 +24,15 @@
 
 		I2 )-- c2
 		I3 )-- c3
-		@enduml
 	\end{plantuml}
 
 \newpage
 
 	\begin{plantuml}
-		@startuml
 		class Car
 
 		Driver - Car : drives >
 		Car *- Wheel : have 4 >
 		Car -- Person : < owns
-		@enduml
 	\end{plantuml}
 \end{document}

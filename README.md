@@ -37,30 +37,21 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 \usepackage{plantuml}
 \begin{document}
 \begin{plantuml}
-  @startuml
-  Alice -> Bob: test
-  @enduml
+Alice -> Bob: test
 \end{plantuml}
 \end{document}
 ```
+
+`@startuml` and `@enduml` are optional: when the diagram body omits them,
+PlantUML adds them automatically ([issue #4](https://github.com/koppor/plantuml/issues/4)),
+so the examples here leave them out. You may still write them explicitly if you
+prefer (see the class-relations example below).
 
 **Compilation:** `lualatex -shell-escape example-minimal` (or `pdflatex -shell-escape example-minimal`)
 
 **Result:**
 
 ![Minimal example](example-minimal.png)
-
-The `@startuml` and `@enduml` markers are optional: when the diagram body does not
-contain them, PlantUML adds them automatically ([issue #4](https://github.com/koppor/plantuml/issues/4)),
-so this is equivalent:
-
-```latex
-\begin{plantuml}
-Alice -> Bob: test
-\end{plantuml}
-```
-
-See [`example-without-startuml.tex`](example-without-startuml.tex).
 
 ### Example Class Relations Rendered Using SVG
 
@@ -109,6 +100,9 @@ Car -- Person : < owns
 \end{plantuml}
 \end{document}
 ```
+
+This example keeps the explicit `@startuml`/`@enduml` markers to show that the
+classic PlantUML form is still accepted.
 
 **Compilation:** `lualatex -shell-escape example-class-relations` (or `pdflatex -shell-escape example-class-relations`)
 

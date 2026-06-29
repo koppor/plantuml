@@ -53,6 +53,27 @@ prefer.
 
 ![Minimal example](example-minimal.png)
 
+### Rendering from a File
+
+Use `\plantumlinput{<file>}` to render a diagram stored in an external PlantUML
+source file, analogous to [minted](https://www.ctan.org/pkg/minted)'s
+`\inputminted` and [listings](https://ctan.org/pkg/listings)' `\lstinputlisting`
+([issue #3](https://github.com/koppor/plantuml/issues/3)):
+
+```latex
+\documentclass{scrartcl}
+\usepackage{plantuml}
+\begin{document}
+\plantumlinput{example-input-file.puml}
+\end{document}
+```
+
+It honors the `output` mode and reuses the same caching, server, and
+`-output-directory` handling as the `plantuml` environment. The file is read
+relative to the current working directory, so paths in subdirectories (e.g.
+`\plantumlinput{diagrams/foo.puml}`) work when compiling from the project root.
+See [`example-input-file.tex`](example-input-file.tex).
+
 ### Example Class Relations Rendered Using SVG
 
 **LaTeX source:**

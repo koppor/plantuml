@@ -168,6 +168,30 @@
   }%
 }
 
+% \plantuml@includeresult: typeset the diagram named plantuml-\PlantUmlHash, which
+% the converter has just produced (or found cached). Shared by the plantuml
+% environment and \plantumlinput so both behave identically: latex/TikZ is scaled
+% with adjustbox, png/svg via \includegraphics, and a missing file falls back to
+% the placeholder (#16).
+\newcommand{\plantuml@includeresult}{%
+  \ifthenelse{\equal{\PlantUmlMode}{latex}}{%
+    \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}{%
+      \begin{adjustbox}{max width=\linewidth}%
+        \input{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}%
+      \end{adjustbox}%
+    }{%
+      \plantuml@notgenerated
+    }%
+  }{%
+    \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}{%
+      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}%
+    }{%
+      \plantuml@notgenerated
+    }%
+    \UMLcountUp
+  }%
+}
+
 % --- Non-Lua (e.g. pdflatex) PlantUML driver ----------------------------------
 % The LuaTeX path (plantuml.lua) shells out with io.popen, reads PLANTUML_JAR
 % with os.getenv and checks files with lfs. For pdfTeX we reproduce the same
@@ -277,70 +301,96 @@
   % environment can include the matching file.
   \newcommand{\plantuml@convert}[2]{%
     \begingroup
-      \edef\plantuml@src{#1-plantuml.txt}%
-      \ifthenelse{\equal{#2}{latex}}{%
-        % PlantUML emits the file with a .tex extension since v1.2023.0.
-        \def\plantuml@ext{tex}%
-        \def\plantuml@topt{latex:nopreamble}%
+      % Environment source: written into the (output) directory as a relative file
+      % whose md5 is found via TeX's input search (\plantuml@srcmd5), while the
+      % shell and the byte-level helpers reach it through the explicit
+      % \PlantUmlIODir prefix (\plantuml@srcio) (#27).
+      \edef\plantuml@srcmd5{#1-plantuml.txt}%
+      \edef\plantuml@srcio{\PlantUmlIODir#1-plantuml.txt}%
+      \plantuml@convert@core{#2}%
+    \endgroup
+  }
+
+  % \plantuml@convertfile{<sourcepath>}{<mode>}: like \plantuml@convert but renders
+  % an existing PlantUML source file (#3). The user file is read from its own path
+  % (no output-directory prefix); only the generated diagram lands in \PlantUmlIODir.
+  \newcommand{\plantuml@convertfile}[2]{%
+    \begingroup
+      \edef\plantuml@srcmd5{#1}%
+      \edef\plantuml@srcio{#1}%
+      \plantuml@convert@core{#2}%
+    \endgroup
+  }
+
+  % \plantuml@convert@core{<mode>}: shared backend used by both entry points above.
+  % Reads the source via the \plantuml@srcmd5 (for \pdf@filemdfivesum) and
+  % \plantuml@srcio (for the shell redirect and \pdf@filesize/\pdf@filedump) path
+  % macros, content-addresses the output as plantuml-<md5>-converted-to.<ext>, runs
+  % PlantUML (or the server) only on a cache miss, and sets \PlantUmlHash (empty on
+  % failure, for #16).
+  \newcommand{\plantuml@convert@core}[1]{%
+    \ifthenelse{\equal{#1}{latex}}{%
+      % PlantUML emits the file with a .tex extension since v1.2023.0.
+      \def\plantuml@ext{tex}%
+      \def\plantuml@topt{latex:nopreamble}%
+    }{%
+      \def\plantuml@ext{#1}%
+      \def\plantuml@topt{#1}%
+    }%
+    \IfFileExists{\plantuml@srcmd5}{%
+      \edef\plantuml@hash{\pdf@filemdfivesum{\plantuml@srcmd5}}%
+      % The "-converted-to." infix makes these cache files match the standard
+      % TeX .gitignore pattern *-converted-to.*, so no custom entry is needed (#2).
+      \edef\plantuml@tgt{plantuml-\plantuml@hash-converted-to.\plantuml@ext}%
+      \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
+        \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
       }{%
-        \def\plantuml@ext{#2}%
-        \def\plantuml@topt{#2}%
-      }%
-      \IfFileExists{\plantuml@src}{%
-        \edef\plantuml@hash{\pdf@filemdfivesum{\plantuml@src}}%
-        % The "-converted-to." infix makes these cache files match the standard
-        % TeX .gitignore pattern *-converted-to.*, so no custom entry is needed (#2).
-        \edef\plantuml@tgt{plantuml-\plantuml@hash-converted-to.\plantuml@ext}%
-        \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
-          \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
+        % Pick the backend: a configured server renders png/svg; latex (TikZ),
+        % which the server cannot produce, and the no-server case use the jar (#6).
+        \edef\plantuml@tmp{\PlantUmlServer}%
+        \def\plantuml@useserver{0}%
+        \ifx\plantuml@tmp\@empty\else
+          \ifthenelse{\equal{#1}{latex}}{}{\def\plantuml@useserver{1}}%
+        \fi
+        \let\plantuml@cmd\@empty
+        \ifthenelse{\equal{\plantuml@useserver}{1}}{%
+          % Server backend: GET <server>/<format>/~h<hex-source> via curl.
+          % \pdf@filedump emits the file as (uppercase) hex, which the server
+          % accepts after the ~h marker.
+          \edef\plantuml@hex{\pdf@filedump{0}{\pdf@filesize{\plantuml@srcio}}{\plantuml@srcio}}%
+          \edef\plantuml@cmd{%
+            curl -sS -f -o "\PlantUmlIODir\plantuml@tgt"%
+            \space "\PlantUmlServer/\plantuml@topt/\plantuml@hexmarker\plantuml@hex"}%
         }{%
-          % Pick the backend: a configured server renders png/svg; latex (TikZ),
-          % which the server cannot produce, and the no-server case use the jar (#6).
-          \edef\plantuml@tmp{\PlantUmlServer}%
-          \def\plantuml@useserver{0}%
-          \ifx\plantuml@tmp\@empty\else
-            \ifthenelse{\equal{#2}{latex}}{}{\def\plantuml@useserver{1}}%
-          \fi
-          \let\plantuml@cmd\@empty
-          \ifthenelse{\equal{\plantuml@useserver}{1}}{%
-            % Server backend: GET <server>/<format>/~h<hex-source> via curl.
-            % \pdf@filedump emits the file as (uppercase) hex, which the server
-            % accepts after the ~h marker.
-            \edef\plantuml@hex{\pdf@filedump{0}{\pdf@filesize{\PlantUmlIODir\plantuml@src}}{\PlantUmlIODir\plantuml@src}}%
+          \ifx\plantuml@jar\@empty
+            \PackageWarning{plantuml}{PLANTUML_JAR not set; cannot run PlantUML}%
+          \else
             \edef\plantuml@cmd{%
-              curl -sS -f -o "\PlantUmlIODir\plantuml@tgt"%
-              \space "\PlantUmlServer/\plantuml@topt/\plantuml@hexmarker\plantuml@hex"}%
-          }{%
-            \ifx\plantuml@jar\@empty
-              \PackageWarning{plantuml}{PLANTUML_JAR not set; cannot run PlantUML}%
-            \else
-              \edef\plantuml@cmd{%
-                \PlantUmlEnvReset
-                java -Djava.awt.headless=true -jar "\plantuml@jar"%
-                \space -charset UTF-8 -pipe -t\plantuml@topt
-                \space < "\PlantUmlIODir\plantuml@src" > "\PlantUmlIODir\plantuml@tgt"}%
-            \fi
-          }%
-          \ifx\plantuml@cmd\@empty\else
-            \typeout{[plantuml] \plantuml@cmd}%
-            \immediate\write18{\plantuml@cmd}%
-            \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{}{%
-              \PackageWarning{plantuml}{PlantUML did not generate \plantuml@tgt}%
-            }%
+              \PlantUmlEnvReset
+              java -Djava.awt.headless=true -jar "\plantuml@jar"%
+              \space -charset UTF-8 -pipe -t\plantuml@topt
+              \space < "\plantuml@srcio" > "\PlantUmlIODir\plantuml@tgt"}%
           \fi
         }%
-        % Expose the hash only if a non-empty output now exists, else empty so the
-        % environment shows the missing-diagram placeholder (#16).
-        \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
-          \global\let\PlantUmlHash\plantuml@hash
-        }{%
-          \global\let\PlantUmlHash\@empty
-        }%
+        \ifx\plantuml@cmd\@empty\else
+          \typeout{[plantuml] \plantuml@cmd}%
+          \immediate\write18{\plantuml@cmd}%
+          \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{}{%
+            \PackageWarning{plantuml}{PlantUML did not generate \plantuml@tgt}%
+          }%
+        \fi
+      }%
+      % Expose the hash only if a non-empty output now exists, else empty so the
+      % environment shows the missing-diagram placeholder (#16).
+      \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
+        \global\let\PlantUmlHash\plantuml@hash
       }{%
-        \PackageWarning{plantuml}{Source \plantuml@src\space does not exist}%
         \global\let\PlantUmlHash\@empty
       }%
-    \endgroup
+    }{%
+      \PackageWarning{plantuml}{Source \plantuml@srcmd5\space does not exist}%
+      \global\let\PlantUmlHash\@empty
+    }%
   }
 \fi
 % ------------------------------------------------------------------------------
@@ -384,22 +434,7 @@
     \else
       \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
     \fi
-    \ifthenelse{\equal{\PlantUmlMode}{latex}}{
-      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}{%
-        \begin{adjustbox}{max width=\linewidth}
-          \input{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}
-        \end{adjustbox}%
-      }{%
-        \plantuml@notgenerated
-      }%
-    }{
-      \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}{%
-        \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}%
-      }{%
-        \plantuml@notgenerated
-      }%
-      \UMLcountUp
-    }
+    \plantuml@includeresult
   }
 \or
   \message{Restricted shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.}
@@ -407,4 +442,27 @@
     Restricted shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.
   }{}
 \fi
+
+% \plantumlinput{<file>}: render a diagram from an existing PlantUML source file,
+% analogous to \inputminted (minted) and \lstinputlisting (listings). It honors
+% the output mode and reuses the same caching, server, -output-directory, and
+% missing-diagram handling as the plantuml environment (#3). The file is read
+% relative to the current working directory (like \write18), so paths in
+% subdirectories work when compiling from the project root.
+\NewDocumentCommand{\plantumlinput}{m}{%
+  \ifluatex
+    \directlua{
+      local sourceFile=\luastring{#1}
+      local plantUmlMode=\luastring{\PlantUmlMode}
+      local plantUmlIODir=\luastring{\PlantUmlIODir}
+      local plantUmlServer=\luastring{\PlantUmlServer}
+      require("plantuml.lua")
+      local hash = convertPlantUmlToTikz("", plantUmlMode, plantUmlIODir, plantUmlServer, sourceFile)
+      tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
+    }%
+  \else
+    \plantuml@convertfile{#1}{\PlantUmlMode}%
+  \fi
+  \plantuml@includeresult
+}
 \makeatother

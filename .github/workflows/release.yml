@@ -31,18 +31,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Set PlantUML version
-        id: plantuml-version
-        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
-      - name: Download PlantUML jar (cached)
-        id: plantuml-jar
-        uses: ethanjli/cached-download-action@v0.1.4
-        with:
-          url: https://github.com/plantuml/plantuml/releases/download/v${{ steps.plantuml-version.outputs.version }}/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
-          destination: /tmp/plantuml/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
-          cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
-      - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
+      # TEMPORARY (plantuml/plantuml#2764): validate upstream's LaTeX-engine
+      # auto-detection against the PlantUML snapshot, which drops the hardcoded
+      # xelatex dependency, before it ships in a stable release. The snapshot is a
+      # moving tag, so fetch it fresh each run (no version pin / cache); re-pin to
+      # a released version before merging -- see CLAUDE.md.
+      - name: Download PlantUML snapshot jar
+        run: |
+          mkdir -p /tmp/plantuml
+          curl -fSL -o /tmp/plantuml/plantuml-SNAPSHOT.jar \
+            https://github.com/plantuml/plantuml/releases/download/snapshot/plantuml-SNAPSHOT.jar
+          echo "PLANTUML_JAR=/tmp/plantuml/plantuml-SNAPSHOT.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v7
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:
@@ -98,18 +97,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Set PlantUML version
-        id: plantuml-version
-        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
-      - name: Download PlantUML jar (cached)
-        id: plantuml-jar
-        uses: ethanjli/cached-download-action@v0.1.4
-        with:
-          url: https://github.com/plantuml/plantuml/releases/download/v${{ steps.plantuml-version.outputs.version }}/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
-          destination: /tmp/plantuml/plantuml-${{ steps.plantuml-version.outputs.version }}.jar
-          cache-key: plantuml-${{ steps.plantuml-version.outputs.version }}.jar
-      - name: Set PLANTUML_JAR
-        run: echo "PLANTUML_JAR=${{ steps.plantuml-jar.outputs.destination }}" >> "$GITHUB_ENV"
+      # TEMPORARY (plantuml/plantuml#2764): validate upstream's LaTeX-engine
+      # auto-detection against the PlantUML snapshot, which drops the hardcoded
+      # xelatex dependency, before it ships in a stable release. The snapshot is a
+      # moving tag, so fetch it fresh each run (no version pin / cache); re-pin to
+      # a released version before merging -- see CLAUDE.md.
+      - name: Download PlantUML snapshot jar
+        run: |
+          mkdir -p /tmp/plantuml
+          curl -fSL -o /tmp/plantuml/plantuml-SNAPSHOT.jar \
+            https://github.com/plantuml/plantuml/releases/download/snapshot/plantuml-SNAPSHOT.jar
+          echo "PLANTUML_JAR=/tmp/plantuml/plantuml-SNAPSHOT.jar" >> "$GITHUB_ENV"
       - uses: actions/checkout@v7
       - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
         with:

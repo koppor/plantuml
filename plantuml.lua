@@ -135,17 +135,6 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
       cmd = cmd .. mode
     end
     cmd = cmd .. [[ < "]] .. plantUmlSourceFilename .. [[" > "]] .. plantUmlTargetFilename .. [["]]
-    -- PlantUML's TikZ output runs xelatex internally to measure text, and that
-    -- xelatex hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path (set by
-    -- lualatex's -output-directory). Clear it for the PlantUML child via a command
-    -- prefix -- os.setenv is not reliable for io.popen children across builds. (#27)
-    if os.getenv("TEXMF_OUTPUT_DIRECTORY") then
-      if package.config:sub(1, 1) == "\\" then
-        cmd = [[set "TEXMF_OUTPUT_DIRECTORY=" && ]] .. cmd
-      else
-        cmd = "env -u TEXMF_OUTPUT_DIRECTORY " .. cmd
-      end
-    end
   end
   texio.write_nl(cmd)
   local handle,error = io.popen(cmd)

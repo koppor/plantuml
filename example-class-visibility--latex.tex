@@ -4,9 +4,10 @@
 % file -- including characters LaTeX treats specially, such as "#". Write them
 % as-is; do NOT escape them (e.g. use "#balance", not "\#balance"). See #24.
 %
-% LaTeX/TikZ output (PlantUML's -tlatex). Note: PlantUML invokes xelatex
-% internally to measure text for TikZ output; see also example-class-visibility
-% in --png and --svg variants, which do not need xelatex.
+% LaTeX/TikZ output (PlantUML's -tlatex). To measure text for TikZ, PlantUML
+% auto-detects an installed LaTeX engine (lualatex, xelatex, or pdflatex), so no
+% specific engine is required; see also the --png and --svg variants, which need
+% no LaTeX engine at all.
 \documentclass{scrartcl}
 \usepackage[output=latex]{plantuml}
 \begin{document}

@@ -27,7 +27,7 @@ jobs:
     # but compiles the examples with pdflatex instead of lualatex.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -94,7 +94,7 @@ jobs:
   build_and_ghpages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: '21'

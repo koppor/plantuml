@@ -19,10 +19,7 @@
 \usepackage[output=svg, server=http://localhost:8080]{plantuml}
 \begin{document}
 \begin{plantuml}
-class Car
-
-Driver - Car : drives >
-Car *- Wheel : have 4 >
-Car -- Person : < owns
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
 \end{plantuml}
 \end{document}

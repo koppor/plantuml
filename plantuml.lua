@@ -9,7 +9,9 @@ local function plantUmlHexEncode(data)
   return (data:gsub(".", function(c) return string.format("%02x", string.byte(c)) end))
 end
 
--- @param mode directly passed to PlantUML: latex, png, svg, or eps
+-- @param mode directly passed to PlantUML: latex, png, svg, eps, or pdf. pdf
+--   needs a jar that bundles OpenPDF, e.g. the default plantuml-<version>.jar;
+--   the permissively licensed jars (MIT, ...) lack it.
 -- @param iodir directory prefix (with trailing slash) where the generated
 --   *-plantuml.* files live. Empty unless lualatex runs with -output-directory:
 --   LaTeX redirects its writes there, but this script (a shell-escape
@@ -19,7 +21,7 @@ end
 --   When set (package option `server`, or the PLANTUML_SERVER environment
 --   variable as a fallback), png, svg, and eps diagrams are fetched from the server via
 --   curl instead of running plantuml.jar locally. The server cannot produce
---   latex/TikZ output, so latex always uses the local jar. (#6)
+--   latex/TikZ or pdf output, so those always use the local jar. (#6)
 -- @param sourceFile when given, render this existing PlantUML source file
 --   directly instead of the generated <jobname>-plantuml.txt. Used by
 --   \plantumlinput to render a diagram from a file. The output is still
@@ -36,7 +38,7 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
   server = server or ""
   if server == "" then server = os.getenv("PLANTUML_SERVER") or "" end
   while server:sub(-1) == "/" do server = server:sub(1, -2) end
-  local useServer = (server ~= "") and (mode ~= "latex")
+  local useServer = (server ~= "") and (mode ~= "latex" and mode ~= "pdf")
 
   -- The source is either a user-supplied file (#3) or the generated per-diagram
   -- source written by the environment.

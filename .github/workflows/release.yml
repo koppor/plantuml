@@ -71,6 +71,8 @@ jobs:
         run: pdflatex -shell-escape example-class-relations--svg
       - name: example-class-visibility--latex
         run: pdflatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--pdf
+        run: pdflatex -shell-escape example-class-visibility--pdf
       - name: example-class-visibility--png
         run: pdflatex -shell-escape example-class-visibility--png
       - name: example-class-visibility--svg
@@ -138,6 +140,8 @@ jobs:
         run: lualatex -shell-escape example-class-relations--svg
       - name: example-class-visibility--latex
         run: lualatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--pdf
+        run: lualatex -shell-escape example-class-visibility--pdf
       - name: example-class-visibility--png
         run: lualatex -shell-escape example-class-visibility--png
       - name: example-class-visibility--svg

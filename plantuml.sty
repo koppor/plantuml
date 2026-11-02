@@ -58,7 +58,7 @@
 \tl_new:N \l_plantuml_server
 \keys_define:nn { plantuml } {
   output .choices:nn = {
-    {latex, png, svg, eps}
+    {latex, png, svg, eps, pdf}
     { \tl_gset:NV \l_plantuml_mode \l_keys_choice_tl }
   },
   output .initial:n = latex,
@@ -454,12 +454,13 @@
       \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
         \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
       }{%
-        % Pick the backend: a configured server renders png/svg/eps; latex (TikZ),
-        % which the server cannot produce, and the no-server case use the jar (#6).
+        % Pick the backend: a configured server renders png/svg/eps; latex (TikZ)
+        % and pdf, which the server cannot produce, and the no-server case use the
+        % jar (#6).
         \edef\plantuml@tmp{\PlantUmlServer}%
         \def\plantuml@useserver{0}%
         \ifx\plantuml@tmp\@empty\else
-          \ifthenelse{\equal{#1}{latex}}{}{\def\plantuml@useserver{1}}%
+          \ifthenelse{\equal{#1}{latex}\OR\equal{#1}{pdf}}{}{\def\plantuml@useserver{1}}%
         \fi
         \let\plantuml@cmd\@empty
         \ifthenelse{\equal{\plantuml@useserver}{1}}{%

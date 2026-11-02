@@ -65,6 +65,7 @@ jobs:
             example-class-relations--latex \
             example-class-relations--svg \
             example-class-visibility--latex \
+            example-class-visibility--pdf \
             example-class-visibility--png \
             example-class-visibility--svg \
             example-component-diagram \

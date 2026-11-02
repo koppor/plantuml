@@ -22,7 +22,10 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
    Example: `C:\Program Files (x86)\Graphviz2.38\bin\dot.exe`.
    You can install graphviz using `choco install graphviz`.
 3. lualatex or pdflatex available, called with the command line parameter `-shell-escape`.
-4. In case you want to have the images as PDFs (and not using TikZ or PNG), ensure that `inkscape.exe` and `pdfcrop` are in your path.
+4. For `output=pdf`, use a PlantUML jar that can write PDF: the default `plantuml-<version>.jar` (GPL) or `plantuml-epl-<version>.jar` from the [PlantUML releases](https://github.com/plantuml/plantuml/releases).
+   The permissively licensed jars (`plantuml-mit-*`, `plantuml-asl-*`, `plantuml-bsd-*`, `plantuml-lgpl-*`, `plantuml-gplv2-*`) lack the PDF library and fail with `NoClassDefFoundError: org/openpdf/...`.
+   `output=pdf` needs neither inkscape nor a LaTeX engine for PlantUML, and the text in the diagram stays searchable.
+5. In case you want to have SVG images converted to PDF, ensure that `inkscape.exe` and `pdfcrop` are in your path.
    You can get inkscape using `choco install inkscape`.
    `pdfcrop` should be part of your latex distribution.
 
@@ -163,7 +166,8 @@ Notes:
   inkscape nor a local jar is needed. Its text is drawn as outlines, so it is
   sharp but not searchable in the PDF; use `svg` (needs inkscape) for real text.
   The server offers no `pdf` or `latex`/TikZ output.
-- Only `output=eps`, `output=png`, and `output=svg` use the server. `output=latex` (TikZ, the
+- Only `output=eps`, `output=png`, and `output=svg` use the server. `output=pdf`
+  always uses the local jar, as the server does not serve working PDF output. `output=latex` (TikZ, the
   default) cannot be produced by a server and always uses the local
   `plantuml.jar`, so keep `PLANTUML_JAR` set if you need latex output.
 - See [`example-server--eps.tex`](example-server--eps.tex),

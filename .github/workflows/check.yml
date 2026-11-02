@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -38,8 +38,8 @@ jobs:
           curl -fSL -o /tmp/plantuml/plantuml-SNAPSHOT.jar \
             https://github.com/plantuml/plantuml/releases/download/snapshot/plantuml-SNAPSHOT.jar
           echo "PLANTUML_JAR=/tmp/plantuml/plantuml-SNAPSHOT.jar" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v7
-      - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: graphviz inkscape
           version: 1.1
@@ -50,7 +50,7 @@ jobs:
       - name: Configure graphviz plugins
         run: sudo dot -c
       - name: Install TeX Live
-        uses: zauguin/install-texlive@v4
+        uses: zauguin/install-texlive@f5e7d0b117035fff797d4392ea94131747e03d60 # v4
         with:
           package_file: tl_packages
       - name: Compile examples with -output-directory
@@ -78,7 +78,7 @@ jobs:
             echo "::endgroup::"
             test -f "out/$example.pdf" || { echo "::error::out/$example.pdf was not produced"; exit 1; }
           done
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           # "local" (rendered by the local plantuml.jar), to parallel the
           # server-* artifacts from the server job.
@@ -102,16 +102,16 @@ jobs:
         ports:
           - 8080:8080
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # inkscape converts the SVG diagram to PDF; graphviz/java are not needed
       # locally because the server does the rendering.
-      - uses: awalsh128/cache-apt-pkgs-action@v1.6.1
+      - uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: inkscape
           version: 1.1
           execute_install_scripts: true
       - name: Install TeX Live
-        uses: zauguin/install-texlive@v4
+        uses: zauguin/install-texlive@f5e7d0b117035fff797d4392ea94131747e03d60 # v4
         with:
           package_file: tl_packages
       - name: Wait for the PlantUML server
@@ -132,7 +132,7 @@ jobs:
             echo "::endgroup::"
             test -f "$example.pdf" || { echo "::error::$example.pdf was not produced"; exit 1; }
           done
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: server-${{ matrix.engine }}
           path: example-server--*.pdf

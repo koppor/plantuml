@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Lint CHANGELOG.md with heylogs
-        uses: jbangdev/jbang-action@v0.139.3
+        uses: jbangdev/jbang-action@c1e811eb87ddfff6646c545c708fbb686253f066 # v0.141.0
         with:
           script: com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin
           scriptargs: "check --format github-actions CHANGELOG.md"

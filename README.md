@@ -297,7 +297,7 @@ Release preparation:
 
 ## Alternative Solutions
 
-[TikZ-UML](https://perso.ensta-paristech.fr/~kielbasi/tikzuml/) is a very powerful package based on [TikZ](https://www.ctan.org/pkg/pgf).
+[TikZ-UML](https://tikzuml.pages.math.cnrs.fr/) is a very powerful package based on [TikZ](https://www.ctan.org/pkg/pgf).
 More alternative solutions are collected at the [CTAN topic UML](https://www.ctan.org/topic/uml).
 
 ## License

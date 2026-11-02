@@ -91,7 +91,7 @@ jobs:
     # Regression test for #6: render diagrams through a PlantUML server instead of
     # a local plantuml.jar. A plantuml-server container provides the HTTP API and
     # PLANTUML_JAR is deliberately left unset, proving the server path needs no
-    # local Java/PlantUML install. Only png and svg go through the server (the
+    # local Java/PlantUML install. Only eps, png, and svg go through the server (the
     # server cannot produce latex/TikZ output), so those are the examples here.
     strategy:
       fail-fast: false
@@ -129,7 +129,7 @@ jobs:
           echo "::error::PlantUML server did not become ready"; exit 1
       - name: Compile server examples (no PLANTUML_JAR)
         run: |
-          for example in example-server--png example-server--svg; do
+          for example in example-server--eps example-server--png example-server--svg; do
             echo "::group::${{ matrix.engine }} $example"
             ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error "$example"
             echo "::endgroup::"

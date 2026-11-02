@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Added `output=eps`, which gives vector diagrams from a PlantUML server without inkscape: LaTeX converts the EPS to PDF itself (TeX Live's `epstopdf`). Text is drawn as outlines, so it stays sharp but is not searchable. It also works with the local `plantuml.jar`. Includes `example-server--eps.tex`.
+
 ## [0.7.0] - 2026-06-29
 
 ### Added

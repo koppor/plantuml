@@ -9,7 +9,7 @@ local function plantUmlHexEncode(data)
   return (data:gsub(".", function(c) return string.format("%02x", string.byte(c)) end))
 end
 
--- @param mode directly passed to PlantUML. Recommended: png, svg, pdf (requires Apache Batik to convert svg to pdf)
+-- @param mode directly passed to PlantUML: latex, png, svg, or eps
 -- @param iodir directory prefix (with trailing slash) where the generated
 --   *-plantuml.* files live. Empty unless lualatex runs with -output-directory:
 --   LaTeX redirects its writes there, but this script (a shell-escape
@@ -17,7 +17,7 @@ end
 --   explicitly. See plantuml.sty for how the prefix is determined (#27).
 -- @param server PlantUML server base URL, e.g. https://www.plantuml.com/plantuml.
 --   When set (package option `server`, or the PLANTUML_SERVER environment
---   variable as a fallback), png and svg diagrams are fetched from the server via
+--   variable as a fallback), png, svg, and eps diagrams are fetched from the server via
 --   curl instead of running plantuml.jar locally. The server cannot produce
 --   latex/TikZ output, so latex always uses the local jar. (#6)
 -- @param sourceFile when given, render this existing PlantUML source file
@@ -36,7 +36,7 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
   server = server or ""
   if server == "" then server = os.getenv("PLANTUML_SERVER") or "" end
   while server:sub(-1) == "/" do server = server:sub(1, -2) end
-  local useServer = (server ~= "") and (mode == "png" or mode == "svg")
+  local useServer = (server ~= "") and (mode ~= "latex")
 
   -- The source is either a user-supplied file (#3) or the generated per-diagram
   -- source written by the environment.

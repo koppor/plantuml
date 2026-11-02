@@ -14,7 +14,7 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 
 1. Environment variable `PLANTUML_JAR` set to the location of `plantuml.jar`.
    You get it from <https://sourceforge.net/projects/plantuml/files/plantuml.jar/download>.
-   Not needed when rendering `png`/`svg` through a PlantUML server (see
+   Not needed when rendering `eps`/`png`/`svg` through a PlantUML server (see
    [Rendering via a PlantUML server](#rendering-via-a-plantuml-server)).
    If neither a jar nor a server is available, the diagram is replaced by a
    visible placeholder rather than aborting the build.
@@ -131,7 +131,7 @@ Car -- Person : < owns
 
 ### Rendering via a PlantUML server
 
-Instead of a local `plantuml.jar`, `png` and `svg` diagrams can be rendered by a
+Instead of a local `plantuml.jar`, `eps`, `png`, and `svg` diagrams can be rendered by a
 [PlantUML server](https://github.com/plantuml/plantuml-server) over HTTP. This
 needs only `curl` — no Java and no local PlantUML installation — which is handy
 on CI and shared build machines (see [issue #6](https://github.com/koppor/plantuml/issues/6)).
@@ -158,10 +158,16 @@ docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
 
 Notes:
 
-- Only `output=png` and `output=svg` use the server. `output=latex` (TikZ, the
+- For vector output without extra tools, use `output=eps`: LaTeX converts the
+  EPS to PDF itself (via `epstopdf`/Ghostscript, shipped with TeX Live), so neither
+  inkscape nor a local jar is needed. Its text is drawn as outlines, so it is
+  sharp but not searchable in the PDF; use `svg` (needs inkscape) for real text.
+  The server offers no `pdf` or `latex`/TikZ output.
+- Only `output=eps`, `output=png`, and `output=svg` use the server. `output=latex` (TikZ, the
   default) cannot be produced by a server and always uses the local
   `plantuml.jar`, so keep `PLANTUML_JAR` set if you need latex output.
-- See [`example-server--png.tex`](example-server--png.tex) and
+- See [`example-server--eps.tex`](example-server--eps.tex),
+  [`example-server--png.tex`](example-server--png.tex), and
   [`example-server--svg.tex`](example-server--svg.tex) for complete examples.
 - The diagram source is sent hex-encoded in the request URL, so a very large
   diagram may hit the server's URL-length limit.

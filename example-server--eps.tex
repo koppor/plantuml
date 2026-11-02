@@ -1,0 +1,19 @@
+% Renders a diagram through a PlantUML *server* instead of a local plantuml.jar,
+% so no Java/PlantUML installation is needed -- only curl. See #6.
+%
+% The `server` option below points at a local server (e.g. the official
+% `plantuml/plantuml-server` Docker image on port 8080). To use the public
+% server instead, set it to https://www.plantuml.com/plantuml. Alternatively,
+% drop the option and set the PLANTUML_SERVER environment variable.
+%
+% Only eps, png, and svg work via a server; latex/TikZ output always uses the jar.
+% EPS gives vector output without inkscape: LaTeX converts it to PDF itself
+% (epstopdf, part of TeX Live). Text is drawn as outlines (not searchable).
+\documentclass{scrartcl}
+\usepackage[output=eps, server=http://localhost:8080]{plantuml}
+\begin{document}
+\begin{plantuml}
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+\end{plantuml}
+\end{document}

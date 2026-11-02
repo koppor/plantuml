@@ -58,12 +58,12 @@
 \tl_new:N \l_plantuml_server
 \keys_define:nn { plantuml } {
   output .choices:nn = {
-    {latex, png, svg}
+    {latex, png, svg, eps}
     { \tl_gset:NV \l_plantuml_mode \l_keys_choice_tl }
   },
   output .initial:n = latex,
   % PlantUML server base URL, e.g. https://www.plantuml.com/plantuml. When set,
-  % png/svg diagrams are rendered by the server instead of the local jar (#6).
+  % png/svg/eps diagrams are rendered by the server instead of the local jar (#6).
   server .tl_gset:N = \l_plantuml_server,
   server .initial:n = ,
 }
@@ -454,7 +454,7 @@
       \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
         \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
       }{%
-        % Pick the backend: a configured server renders png/svg; latex (TikZ),
+        % Pick the backend: a configured server renders png/svg/eps; latex (TikZ),
         % which the server cannot produce, and the no-server case use the jar (#6).
         \edef\plantuml@tmp{\PlantUmlServer}%
         \def\plantuml@useserver{0}%

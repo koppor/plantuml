@@ -189,6 +189,24 @@ standard [TeX `.gitignore`](https://github.com/github/gitignore/blob/main/TeX.gi
 already ignores these files (via `*-converted-to.*`), so no extra entry is
 needed. Delete the `plantuml-*-converted-to.*` files to clear the cache.
 
+### Committing rendered diagrams (e.g. for Overleaf)
+
+The cached files can be committed, so the document builds where PlantUML is not
+available, for instance on Overleaf or without `-shell-escape`. A diagram whose
+`plantuml-<hash>-converted-to.*` file exists is used as is; neither Java nor
+shell escape is needed for it. Only new or changed diagrams need PlantUML: build
+locally with `PLANTUML_JAR` set and `-shell-escape`, then commit the new files.
+Until then, such a diagram shows the "could not be generated" placeholder.
+
+The standard TeX `.gitignore` ignores these files, so add an exception:
+
+```gitignore
+!plantuml-*-converted-to.*
+```
+
+Files of outdated diagrams are not removed automatically. To clean up, delete all
+`plantuml-*-converted-to.*` files, build once, and commit the result.
+
 ### Global Preamble
 
 The default PlantUML style is colorful, which is not ideal for printouts. Instead

@@ -463,6 +463,13 @@
           \ifthenelse{\equal{#1}{latex}\OR\equal{#1}{pdf}}{}{\def\plantuml@useserver{1}}%
         \fi
         \let\plantuml@cmd\@empty
+        \ifnum\pdf@shellescape=1 \else
+          % Cache miss without full shell escape: nothing can render it.
+          \def\plantuml@useserver{2}%
+          \PackageWarning{plantuml}{\plantuml@tgt\space not rendered yet and
+            no shell escape to run PlantUML}%
+        \fi
+        \ifthenelse{\equal{\plantuml@useserver}{2}}{}{%
         \ifthenelse{\equal{\plantuml@useserver}{1}}{%
           % Server backend: GET <server>/<format>/~h<hex-source> via curl.
           % \pdf@filedump emits the file as (uppercase) hex, which the server
@@ -494,6 +501,7 @@
               \space < "\plantuml@srcio" > "\PlantUmlIODir\plantuml@tgt"}%
           \fi
         }%
+        }%
         \ifx\plantuml@cmd\@empty\else
           \typeout{[plantuml] \plantuml@cmd}%
           \immediate\write18{\plantuml@cmd}%
@@ -517,12 +525,10 @@
 \fi
 % ------------------------------------------------------------------------------
 
-\ifcase\pdf@shellescape
-  \message{No shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.}
-  \newenvironment{plantuml}{%
-    No shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.
-  }{}
-\or
+% Without full shell escape PlantUML cannot run, but diagrams rendered earlier
+% (e.g. committed plantuml-<hash>-converted-to.* files, say for Overleaf) are
+% still used: the content hash needs no shell escape, only a cache miss does.
+\ifnum\pdf@shellescape=1
   \ifluatex
     \directlua{
       local plantUmlJar = os.getenv("PLANTUML_JAR")
@@ -537,37 +543,36 @@
     \plantuml@readjar
     \plantuml@readoutdir
   \fi
-  % Caption/label/float options come from a preceding \plantumlset (#8); an
-  % optional argument cannot be read here without breaking the verbatim capture.
-  \NewDocumentEnvironment{plantuml}{}{%
-    \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
-  {%
-    \endVerbatimOut
-    % \PlantUmlHash is set to the content hash of the diagram; the generated file
-    % is named plantuml-<hash>.<ext> so identical diagrams share one cached file (#2).
-    \ifluatex
-      \directlua{
-        local jobname=\luastring{\PlantUMLJobname}
-        local plantUmlMode=\luastring{\PlantUmlMode}
-        local plantUmlIODir=\luastring{\PlantUmlIODir}
-        local plantUmlServer=\luastring{\PlantUmlServer}
-        local plantUmlPreamble=\luastring{\PlantUmlPreambleIO}
-        require("plantuml.lua")
-        local hash = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer, nil, plantUmlPreamble)
-        tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
-      }
-    \else
-      \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
-    \fi
-    \plantumlEmit
-    \plantumlResetOpts
-  }
-\or
-  \message{Restricted shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.}
-  \newenvironment{plantuml}{%
-    Restricted shell escape. PlantUML cannot be called. Start pdflatex/lualatex with -shell-escape.
-  }{}
+\else
+  \PackageWarningNoLine{plantuml}{No full shell escape: PlantUML cannot be
+    called, only already rendered diagrams are used. Start pdflatex/lualatex
+    with -shell-escape to render new or changed diagrams}
 \fi
+% Caption/label/float options come from a preceding \plantumlset (#8); an
+% optional argument cannot be read here without breaking the verbatim capture.
+\NewDocumentEnvironment{plantuml}{}{%
+  \VerbatimOut{"\CurrentDirectory\PlantUMLJobname-plantuml.txt"}}
+{%
+  \endVerbatimOut
+  % \PlantUmlHash is set to the content hash of the diagram; the generated file
+  % is named plantuml-<hash>.<ext> so identical diagrams share one cached file (#2).
+  \ifluatex
+    \directlua{
+      local jobname=\luastring{\PlantUMLJobname}
+      local plantUmlMode=\luastring{\PlantUmlMode}
+      local plantUmlIODir=\luastring{\PlantUmlIODir}
+      local plantUmlServer=\luastring{\PlantUmlServer}
+      local plantUmlPreamble=\luastring{\PlantUmlPreambleIO}
+      require("plantuml.lua")
+      local hash = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer, nil, plantUmlPreamble)
+      tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
+    }
+  \else
+    \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
+  \fi
+  \plantumlEmit
+  \plantumlResetOpts
+}
 
 % \plantumlinput{<file>}: render a diagram from an existing PlantUML source file,
 % analogous to \inputminted (minted) and \lstinputlisting (listings). It honors

@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added `output=eps`, which gives vector diagrams from a PlantUML server without inkscape: LaTeX converts the EPS to PDF itself (TeX Live's `epstopdf`). Text is drawn as outlines, so it stays sharp but is not searchable. It also works with the local `plantuml.jar`. Includes `example-server--eps.tex`.
 - Added `output=pdf`, which lets PlantUML write the diagram as PDF directly: vector graphics with searchable text, without inkscape. It needs the local `plantuml.jar` in a distribution that bundles the PDF library, e.g. the default `plantuml-<version>.jar`; the MIT/ASL/BSD/LGPL/GPLv2 jars lack it. Includes `example-class-visibility--pdf.tex`.
 
+### Changed
+
+- Without `-shell-escape` (or with restricted shell escape), already rendered diagrams are now used instead of showing a "No shell escape" message. This allows committing the `plantuml-<hash>-converted-to.*` files, e.g. for Overleaf: only new or changed diagrams need PlantUML.
+
 ## [0.7.0] - 2026-06-29
 
 ### Added

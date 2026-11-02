@@ -102,6 +102,13 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
     return hash
   end
 
+  -- Without full shell escape PlantUML cannot run; only cached (e.g. committed)
+  -- diagrams can be used.
+  if status.shell_escape ~= 1 then
+    texio.write_nl("PlantUML: \"" .. plantUmlTargetFilename .. "\" not rendered yet and no shell escape to run PlantUML.")
+    return nil
+  end
+
   local plantUmlJar
   if not useServer then
     plantUmlJar = os.getenv("PLANTUML_JAR")

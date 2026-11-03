@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-11-03
+
+### Changed
+
+- Reworked the README introduction.
+
 ### Fixed
 
 - Fixed the empty version in the README of the CTAN package.
@@ -148,7 +154,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Initial public release
 
-[Unreleased]: https://github.com/koppor/plantuml/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/koppor/plantuml/compare/0.8.1...HEAD
+[0.8.1]: https://github.com/koppor/plantuml/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/koppor/plantuml/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/koppor/plantuml/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/koppor/plantuml/compare/0.5.1...0.6.0

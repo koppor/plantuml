@@ -202,6 +202,8 @@ locally with `PLANTUML_JAR` set and `-shell-escape`, then commit the new files.
 Until then, such a diagram shows the "could not be generated" placeholder.
 This also works with `-output-directory`: a diagram file is looked up in the
 output directory first, then next to the document.
+TeX Live before 2023 does not pass the output directory to packages: `lualatex`
+reads it from its command line, `pdflatex` via `ps` (Linux and macOS only).
 
 The standard TeX `.gitignore` ignores these files, so add an exception:
 

@@ -9,16 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Added `output=eps`, which gives vector diagrams from a PlantUML server without inkscape: LaTeX converts the EPS to PDF itself (TeX Live's `epstopdf`). Text is drawn as outlines, so it stays sharp but is not searchable. It also works with the local `plantuml.jar`. Includes `example-server--eps.tex`.
-- Added `output=pdf`, which lets PlantUML write the diagram as PDF directly: vector graphics with searchable text, without inkscape. It needs the local `plantuml.jar` in a distribution that bundles the PDF library, e.g. the default `plantuml-<version>.jar`; the MIT/ASL/BSD/LGPL/GPLv2 jars lack it. The diagram uses the non-embedded standard PDF fonts Times-Roman, Helvetica, or Courier. Includes `example-class-visibility--pdf.tex`.
+- Added `output=eps`: vector diagrams from a PlantUML server, converted by `epstopdf`.
+- Added `output=pdf`: vector diagrams with searchable text, written by the local `plantuml.jar`.
 
 ### Changed
 
-- Without `-shell-escape` (or with restricted shell escape), already rendered diagrams are now used instead of showing a "No shell escape" message. This allows committing the `plantuml-<hash>-converted-to.*` files, e.g. for Overleaf: only new or changed diagrams need PlantUML. With `-output-directory`, such files are found in the output directory or next to the document.
+- Already rendered diagrams are used without `-shell-escape`, so `plantuml-*-converted-to.*` files can be committed (e.g., for Overleaf).
 
 ### Fixed
 
-- Fixed `-output-directory` with TeX Live before 2023 (e.g. TeX Live 2022 of Debian 12), which does not set `TEXMF_OUTPUT_DIRECTORY`: no diagram was generated. `lualatex` now takes the output directory from its command line, `pdflatex` via `ps` (Linux and macOS). [#27](https://github.com/koppor/plantuml/issues/27)
+- Fixed `-output-directory` on TeX Live before 2023. [#27](https://github.com/koppor/plantuml/issues/27)
 
 ## [0.7.0] - 2026-06-29
 

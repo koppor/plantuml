@@ -1,5 +1,6 @@
 #!/bin/sh
-TAG=`git describe --abbrev=0 --tags`
+# The CI checkout has no tags, so take the version from \ProvidesPackage.
+TAG=$(sed -n 's/.* v\([0-9.]*\)$/\1/p' plantuml.sty | head -1)
 
 # remove shields.io badge
 sed -i "s/# plantuml.*/# plantuml\n\nVersion $TAG/" README.md

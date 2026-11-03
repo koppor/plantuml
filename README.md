@@ -166,10 +166,10 @@ Notes:
   inkscape nor a local jar is needed. Its text is drawn as outlines, so it is
   sharp but not searchable in the PDF; use `svg` (needs inkscape) for real text.
   The server offers no `pdf` or `latex`/TikZ output.
-- Only `output=eps`, `output=png`, and `output=svg` use the server. `output=pdf`
-  always uses the local jar, as the server does not serve working PDF output. `output=latex` (TikZ, the
-  default) cannot be produced by a server and always uses the local
-  `plantuml.jar`, so keep `PLANTUML_JAR` set if you need latex output.
+- When a server is configured, `output=eps`, `output=png`, and `output=svg`
+  are rendered by it. `output=pdf` and `output=latex` (TikZ, the default) always
+  use the local `plantuml.jar`, as the server cannot produce them, so keep
+  `PLANTUML_JAR` set for those.
 - See [`example-server--eps.tex`](example-server--eps.tex),
   [`example-server--png.tex`](example-server--png.tex), and
   [`example-server--svg.tex`](example-server--svg.tex) for complete examples.

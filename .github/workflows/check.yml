@@ -88,6 +88,24 @@ jobs:
           # server-* artifacts from the server job.
           name: local-${{ matrix.engine }}
           path: out/*.pdf
+      # Already rendered diagrams must be reused without PlantUML and without
+      # shell escape (e.g. committed diagram files on Overleaf): first from the
+      # output directory, then moved next to the documents (as if committed).
+      - name: Reuse rendered diagrams without shell escape
+        run: |
+          examples="example-class-visibility--pdf example-class-visibility--png example-input-file example-minimal example-preamble"
+          check() {
+            for example in $examples; do
+              env -u PLANTUML_JAR ${{ matrix.engine }} -no-shell-escape -interaction=nonstopmode -halt-on-error -output-directory="$1" "$example"
+              if grep -q 'could not be generated' "$1/$example.log"; then
+                echo "::error::$example: rendered diagram not reused ($2)"; exit 1
+              fi
+            done
+          }
+          check out "in the output directory"
+          mv out/plantuml-*-converted-to.* .
+          mkdir -p out-committed
+          check out-committed "next to the document"
   server:
     # Regression test for #6: render diagrams through a PlantUML server instead of
     # a local plantuml.jar. A plantuml-server container provides the HTTP API and

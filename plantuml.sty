@@ -190,9 +190,9 @@
   \immediate\closeout\PlantUmlProbeStream
   \directlua{
       local lfs = require("lfs")
-      local outdir = os.getenv("TEXMF_OUTPUT_DIRECTORY")
-      if outdir and outdir:len() > 0 then
-        outdir = outdir:gsub("\\", "/") .. "/"
+      require("plantuml.lua")
+      local outdir = plantUmlOutputDirectory()
+      if outdir then
         os.remove(outdir .. "openout-probe-plantuml.tmp")
         os.remove("openout-probe-plantuml.tmp")
         tex.sprint("\\gdef\\CurrentDirectory{}")
@@ -237,6 +237,9 @@
 % (#2). Set per diagram by the converter; default empty as a safety net. With a
 % global preamble (#5) the hash is "<source-md5>-<preamble-md5>".
 \newcommand{\PlantUmlHash}{}
+% Directory prefix of that file: \PlantUmlIODir, or empty for a diagram file
+% committed next to the document while building into an -output-directory.
+\newcommand{\PlantUmlResultDir}{}
 
 % Global PlantUML preamble (skinparam etc.) applied to every diagram (#5). Two
 % paths, like the diagram source: ...Md5 for \pdf@filemdfivesum (located via TeX's
@@ -270,18 +273,18 @@
 % the placeholder (#16).
 \newcommand{\plantuml@includeresult}{%
   \ifthenelse{\equal{\PlantUmlMode}{latex}}{%
-    \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}{%
+    \IfFileExists{\PlantUmlResultDir plantuml-\PlantUmlHash-converted-to.tex}{%
       \begin{adjustbox}{max width=\linewidth}%
         % \PlantUmlTikzFont (default \sffamily) makes the TikZ text match the
         % font PlantUML measured the boxes with, avoiding uneven margins (#14).
-        {\PlantUmlTikzFont\input{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.tex}}%
+        {\PlantUmlTikzFont\input{\PlantUmlResultDir plantuml-\PlantUmlHash-converted-to.tex}}%
       \end{adjustbox}%
     }{%
       \plantuml@notgenerated
     }%
   }{%
-    \IfFileExists{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}{%
-      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlIODir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}%
+    \IfFileExists{\PlantUmlResultDir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}{%
+      \includegraphics[width=\maxwidth{\textwidth}]{\PlantUmlResultDir plantuml-\PlantUmlHash-converted-to.\PlantUmlMode}%
     }{%
       \plantuml@notgenerated
     }%
@@ -366,8 +369,10 @@
 
   % \plantuml@readoutdir: read TEXMF_OUTPUT_DIRECTORY into \PlantUmlIODir (with a
   % trailing slash) so the \write18 PlantUML call can reach files written into a
-  % -output-directory. Cross-platform via kpsewhich, like \plantuml@readjar. Left
-  % empty when no output directory is in effect. Needs shell escape.
+  % -output-directory. Cross-platform via kpsewhich, like \plantuml@readjar. TeX
+  % Live < 2023 does not set that variable; there the -output-directory is taken
+  % from pdfTeX's own command line via `ps` (POSIX only). Left empty when no
+  % output directory is in effect. Needs shell escape.
   \newcommand*{\plantuml@readoutdir}{%
     \begingroup
       \endlinechar=-1\relax
@@ -382,8 +387,34 @@
         \fi
       \fi
       \closein\plantuml@stream
+      \edef\plantuml@tmp{\PlantUmlIODir}%
+      \ifx\plantuml@tmp\@empty
+        \PlantumlIfNotWindows{%
+          % $PPID is pdfTeX itself: the pipe runs as its child via /bin/sh.
+          \openin\plantuml@stream=|"ps -o args= -p \string$PPID"\relax
+          \ifeof\plantuml@stream
+          \else
+            \readline\plantuml@stream to \plantuml@line
+            \PlantumlOutdirFromArgs\plantuml@line
+          \fi
+          \closein\plantuml@stream
+        }%
+      \fi
     \endgroup
   }
+  \ExplSyntaxOn
+  \cs_new_protected:Npn \PlantumlIfNotWindows #1
+    { \sys_if_platform_windows:F {#1} }
+  % Set \PlantUmlIODir from a command line containing -output-directory=<dir>
+  % or -output-directory <dir> (also with --).
+  \cs_new_protected:Npn \PlantumlOutdirFromArgs #1
+    {
+      \regex_extract_once:nVNT
+        { \-\-?output\-directory(?:=|\s+)(\S+) } #1 \l_tmpa_seq
+        { \tl_gset:Nx \PlantUmlIODir { \seq_item:Nn \l_tmpa_seq { 2 } / } }
+    }
+  \cs_generate_variant:Nn \regex_extract_once:nnNT { nV }
+  \ExplSyntaxOff
 
   % \plantuml@iffilenonempty{<file>}{<then>}{<else>}: run <then> if <file> exists
   % and is non-empty, else <else>.
@@ -451,8 +482,17 @@
       % The "-converted-to." infix makes these cache files match the standard
       % TeX .gitignore pattern *-converted-to.*, so no custom entry is needed (#2).
       \edef\plantuml@tgt{plantuml-\plantuml@hash-converted-to.\plantuml@ext}%
-      \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
-        \typeout{[plantuml] cache hit \plantuml@tgt;\space skipping PlantUML.}%
+      % Look for an already rendered diagram in the output directory, then in the
+      % working directory (a diagram file committed next to the document).
+      \global\let\PlantUmlResultDir\PlantUmlIODir
+      \def\plantuml@hit{0}%
+      \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{\def\plantuml@hit{1}}{%
+        \plantuml@iffilenonempty{\plantuml@tgt}{%
+          \def\plantuml@hit{1}\global\let\PlantUmlResultDir\@empty
+        }{}%
+      }%
+      \ifthenelse{\equal{\plantuml@hit}{1}}{%
+        \typeout{[plantuml] cache hit \PlantUmlResultDir\plantuml@tgt;\space skipping PlantUML.}%
       }{%
         % Pick the backend: a configured server renders png/svg/eps; latex (TikZ)
         % and pdf, which the server cannot produce, and the no-server case use the
@@ -512,7 +552,7 @@
       }%
       % Expose the hash only if a non-empty output now exists, else empty so the
       % environment shows the missing-diagram placeholder (#16).
-      \plantuml@iffilenonempty{\PlantUmlIODir\plantuml@tgt}{%
+      \plantuml@iffilenonempty{\PlantUmlResultDir\plantuml@tgt}{%
         \global\let\PlantUmlHash\plantuml@hash
       }{%
         \global\let\PlantUmlHash\@empty
@@ -564,8 +604,9 @@
       local plantUmlServer=\luastring{\PlantUmlServer}
       local plantUmlPreamble=\luastring{\PlantUmlPreambleIO}
       require("plantuml.lua")
-      local hash = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer, nil, plantUmlPreamble)
+      local hash, dir = convertPlantUmlToTikz(jobname, plantUmlMode, plantUmlIODir, plantUmlServer, nil, plantUmlPreamble)
       tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
+      tex.sprint("\\gdef\\PlantUmlResultDir{" .. (dir or "") .. "}")
     }
   \else
     \plantuml@convert{\PlantUMLJobname}{\PlantUmlMode}
@@ -591,8 +632,9 @@
       local plantUmlServer=\luastring{\PlantUmlServer}
       local plantUmlPreamble=\luastring{\PlantUmlPreambleIO}
       require("plantuml.lua")
-      local hash = convertPlantUmlToTikz("", plantUmlMode, plantUmlIODir, plantUmlServer, sourceFile, plantUmlPreamble)
+      local hash, dir = convertPlantUmlToTikz("", plantUmlMode, plantUmlIODir, plantUmlServer, sourceFile, plantUmlPreamble)
       tex.sprint("\\gdef\\PlantUmlHash{" .. (hash or "") .. "}")
+      tex.sprint("\\gdef\\PlantUmlResultDir{" .. (dir or "") .. "}")
     }%
   \else
     \plantuml@convertfile{#2}{\PlantUmlMode}%

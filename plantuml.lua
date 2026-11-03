@@ -9,6 +9,25 @@ local function plantUmlHexEncode(data)
   return (data:gsub(".", function(c) return string.format("%02x", string.byte(c)) end))
 end
 
+-- The -output-directory LaTeX was started with, with a trailing slash, or nil.
+-- TeX Live >= 2023 exports it as TEXMF_OUTPUT_DIRECTORY; older engines do not,
+-- but LuaTeX always has its command line in `arg` (also without shell escape).
+function plantUmlOutputDirectory()
+  local dir = os.getenv("TEXMF_OUTPUT_DIRECTORY")
+  if not dir or dir == "" then
+    dir = nil
+    for i = 1, #arg do
+      dir = arg[i]:match("^%-%-?output%-directory=(.+)$")
+      if not dir and arg[i]:match("^%-%-?output%-directory$") then dir = arg[i + 1] end
+      if dir then break end
+    end
+  end
+  if not dir or dir == "" then return nil end
+  dir = dir:gsub("\\", "/")
+  if dir:sub(-1) ~= "/" then dir = dir .. "/" end
+  return dir
+end
+
 -- @param mode directly passed to PlantUML: latex, png, svg, eps, or pdf. pdf
 --   needs a jar that bundles OpenPDF, e.g. the default plantuml-<version>.jar;
 --   the permissively licensed jars (MIT, ...) lack it.
@@ -32,7 +51,10 @@ end
 --   the diagram omits @startuml, as PlantUML then wraps preamble+body together).
 --   Its hash is folded into the output name so changing it rebuilds diagrams. (#5)
 -- @return the content hash of the diagram (so plantuml.sty can include the
---   hash-named output file), or nil if the diagram could not be generated.
+--   hash-named output file) and the directory prefix holding that file, or nil if
+--   the diagram could not be generated. A diagram already rendered is looked up
+--   in the output directory first, then in the working directory, so diagram
+--   files committed next to the document are used under -output-directory too.
 function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambleFile)
   iodir = iodir or ""
   server = server or ""
@@ -99,7 +121,12 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
   end
   if fileNonEmpty(plantUmlTargetFilename) then
     texio.write_nl("PlantUML cache hit \"" .. plantUmlTargetFilename .. "\"; skipping execution.")
-    return hash
+    return hash, iodir
+  end
+  local committedFilename = plantUmlTargetFilename:sub(#iodir + 1)
+  if iodir ~= "" and fileNonEmpty(committedFilename) then
+    texio.write_nl("PlantUML cache hit \"" .. committedFilename .. "\"; skipping execution.")
+    return hash, ""
   end
 
   -- Without full shell escape PlantUML cannot run; only cached (e.g. committed)
@@ -175,5 +202,5 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
     texio.write_nl("PlantUML did not generate anything.")
     return nil
   end
-  return hash
+  return hash, iodir
 end

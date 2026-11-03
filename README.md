@@ -197,6 +197,8 @@ available, for instance on Overleaf or without `-shell-escape`. A diagram whose
 shell escape is needed for it. Only new or changed diagrams need PlantUML: build
 locally with `PLANTUML_JAR` set and `-shell-escape`, then commit the new files.
 Until then, such a diagram shows the "could not be generated" placeholder.
+This also works with `-output-directory`: a diagram file is looked up in the
+output directory first, then next to the document.
 
 The standard TeX `.gitignore` ignores these files, so add an exception:
 

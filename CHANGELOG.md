@@ -14,7 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- Without `-shell-escape` (or with restricted shell escape), already rendered diagrams are now used instead of showing a "No shell escape" message. This allows committing the `plantuml-<hash>-converted-to.*` files, e.g. for Overleaf: only new or changed diagrams need PlantUML.
+- Without `-shell-escape` (or with restricted shell escape), already rendered diagrams are now used instead of showing a "No shell escape" message. This allows committing the `plantuml-<hash>-converted-to.*` files, e.g. for Overleaf: only new or changed diagrams need PlantUML. With `-output-directory`, such files are found in the output directory or next to the document.
+
+### Fixed
+
+- Fixed `-output-directory` with TeX Live before 2023 (e.g. TeX Live 2022 of Debian 12), which does not set `TEXMF_OUTPUT_DIRECTORY`: no diagram was generated. `lualatex` now takes the output directory from its command line, `pdflatex` via `ps` (Linux and macOS). [#27](https://github.com/koppor/plantuml/issues/27)
 
 ## [0.7.0] - 2026-06-29
 

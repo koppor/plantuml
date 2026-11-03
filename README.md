@@ -2,13 +2,17 @@
 
 > A LuaLaTeX and pdfLaTeX package for PlantUML in LaTeX
 
-[PlantUML](http://plantuml.com/) is a program which transforms text into UML diagrams.
-This package allows for embedding PlantUML diagrams using the PlantUML source.
+Write [PlantUML](https://plantuml.com/) diagrams directly in your LaTeX document:
 
-It works with both [lualatex](http://www.luatex.org/) and [pdflatex](https://www.tug.org/applications/pdftex/).
-Both engines need `-shell-escape` so that the package can call PlantUML.
-See [docs/decisions/0001-support-pdflatex-via-shell-escape.md](docs/decisions/0001-support-pdflatex-via-shell-escape.md)
-for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.com/koppor/plantuml/issues/1)).
+```latex
+\begin{plantuml}
+  Alice -> Bob: Hello
+\end{plantuml}
+```
+
+The package renders the diagram with a local `plantuml.jar` or a [PlantUML server](#rendering-via-a-plantuml-server) and includes it as TikZ, PDF, PNG, SVG, or EPS.
+It works with [lualatex](https://www.luatex.org/) and [pdflatex](https://www.tug.org/applications/pdftex/).
+Rendered diagrams are cached, and can be [committed](#committing-rendered-diagrams-eg-for-overleaf) for builds without shell escape, e.g., on Overleaf.
 
 ## Preconditions
 
@@ -320,6 +324,8 @@ For manual installation, copy `plantuml.*` to your local `texmf` folder in the s
 See [the discussion at tex.sx](https://tex.stackexchange.com/q/27982/9075) for the concrete location of the folder on your system.
 
 ## Development
+
+[ADR-0001](docs/decisions/0001-support-pdflatex-via-shell-escape.md) explains why pdfLaTeX calls PlantUML via shell escape ([#1](https://github.com/koppor/plantuml/issues/1)).
 
 The release is built using [GitHub Actions](https://github.com/features/actions) ([workflow file](https://github.com/koppor/plantuml/blob/main/.github/workflows/release.yml)) using [`release.sh`](release.sh).
 

@@ -33,7 +33,7 @@ jobs:
           java-version: '21'
       - name: Set PlantUML version
         id: plantuml-version
-        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
+        run: echo "version=1.2026.9" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@f1d109e4eca8d988e012ed5565366717aba90d0f # v0.1.4
@@ -71,6 +71,8 @@ jobs:
         run: pdflatex -shell-escape example-class-relations--svg
       - name: example-class-visibility--latex
         run: pdflatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--pdf
+        run: pdflatex -shell-escape example-class-visibility--pdf
       - name: example-class-visibility--png
         run: pdflatex -shell-escape example-class-visibility--png
       - name: example-class-visibility--svg
@@ -100,7 +102,7 @@ jobs:
           java-version: '21'
       - name: Set PlantUML version
         id: plantuml-version
-        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
+        run: echo "version=1.2026.9" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@f1d109e4eca8d988e012ed5565366717aba90d0f # v0.1.4
@@ -138,6 +140,8 @@ jobs:
         run: lualatex -shell-escape example-class-relations--svg
       - name: example-class-visibility--latex
         run: lualatex -shell-escape example-class-visibility--latex
+      - name: example-class-visibility--pdf
+        run: lualatex -shell-escape example-class-visibility--pdf
       - name: example-class-visibility--png
         run: lualatex -shell-escape example-class-visibility--png
       - name: example-class-visibility--svg

@@ -31,7 +31,7 @@ jobs:
       # keyed on the version, so a bump fetches the new jar automatically.
       - name: Set PlantUML version
         id: plantuml-version
-        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
+        run: echo "version=1.2026.9" >> "$GITHUB_OUTPUT"
       - name: Download PlantUML jar (cached)
         id: plantuml-jar
         uses: ethanjli/cached-download-action@f1d109e4eca8d988e012ed5565366717aba90d0f # v0.1.4
@@ -65,6 +65,7 @@ jobs:
             example-class-relations--latex \
             example-class-relations--svg \
             example-class-visibility--latex \
+            example-class-visibility--pdf \
             example-class-visibility--png \
             example-class-visibility--svg \
             example-component-diagram \
@@ -87,11 +88,29 @@ jobs:
           # server-* artifacts from the server job.
           name: local-${{ matrix.engine }}
           path: out/*.pdf
+      # Already rendered diagrams must be reused without PlantUML and without
+      # shell escape (e.g. committed diagram files on Overleaf): first from the
+      # output directory, then moved next to the documents (as if committed).
+      - name: Reuse rendered diagrams without shell escape
+        run: |
+          examples="example-class-visibility--pdf example-class-visibility--png example-input-file example-minimal example-preamble"
+          check() {
+            for example in $examples; do
+              env -u PLANTUML_JAR ${{ matrix.engine }} -no-shell-escape -interaction=nonstopmode -halt-on-error -output-directory="$1" "$example"
+              if grep -q 'could not be generated' "$1/$example.log"; then
+                echo "::error::$example: rendered diagram not reused ($2)"; exit 1
+              fi
+            done
+          }
+          check out "in the output directory"
+          mv out/plantuml-*-converted-to.* .
+          mkdir -p out-committed
+          check out-committed "next to the document"
   server:
     # Regression test for #6: render diagrams through a PlantUML server instead of
     # a local plantuml.jar. A plantuml-server container provides the HTTP API and
     # PLANTUML_JAR is deliberately left unset, proving the server path needs no
-    # local Java/PlantUML install. Only png and svg go through the server (the
+    # local Java/PlantUML install. Only eps, png, and svg go through the server (the
     # server cannot produce latex/TikZ output), so those are the examples here.
     strategy:
       fail-fast: false
@@ -129,7 +148,7 @@ jobs:
           echo "::error::PlantUML server did not become ready"; exit 1
       - name: Compile server examples (no PLANTUML_JAR)
         run: |
-          for example in example-server--png example-server--svg; do
+          for example in example-server--eps example-server--png example-server--svg; do
             echo "::group::${{ matrix.engine }} $example"
             ${{ matrix.engine }} -shell-escape -interaction=nonstopmode -halt-on-error "$example"
             echo "::endgroup::"

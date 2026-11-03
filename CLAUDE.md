@@ -19,7 +19,7 @@ To **bump** PlantUML, change the version in the "Set PlantUML version" step:
 ```yaml
       - name: Set PlantUML version
         id: plantuml-version
-        run: echo "version=1.2026.6" >> "$GITHUB_OUTPUT"
+        run: echo "version=1.2026.9" >> "$GITHUB_OUTPUT"
 ```
 
 It appears **once in `check.yml` and twice in `release.yml`** (one per job) —

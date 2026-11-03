@@ -9,7 +9,28 @@ local function plantUmlHexEncode(data)
   return (data:gsub(".", function(c) return string.format("%02x", string.byte(c)) end))
 end
 
--- @param mode directly passed to PlantUML. Recommended: png, svg, pdf (requires Apache Batik to convert svg to pdf)
+-- The -output-directory LaTeX was started with, with a trailing slash, or nil.
+-- TeX Live >= 2023 exports it as TEXMF_OUTPUT_DIRECTORY; older engines do not,
+-- but LuaTeX always has its command line in `arg` (also without shell escape).
+function plantUmlOutputDirectory()
+  local dir = os.getenv("TEXMF_OUTPUT_DIRECTORY")
+  if not dir or dir == "" then
+    dir = nil
+    for i = 1, #arg do
+      dir = arg[i]:match("^%-%-?output%-directory=(.+)$")
+      if not dir and arg[i]:match("^%-%-?output%-directory$") then dir = arg[i + 1] end
+      if dir then break end
+    end
+  end
+  if not dir or dir == "" then return nil end
+  dir = dir:gsub("\\", "/")
+  if dir:sub(-1) ~= "/" then dir = dir .. "/" end
+  return dir
+end
+
+-- @param mode directly passed to PlantUML: latex, png, svg, eps, or pdf. pdf
+--   needs a jar that bundles OpenPDF, e.g. the default plantuml-<version>.jar;
+--   the permissively licensed jars (MIT, ...) lack it.
 -- @param iodir directory prefix (with trailing slash) where the generated
 --   *-plantuml.* files live. Empty unless lualatex runs with -output-directory:
 --   LaTeX redirects its writes there, but this script (a shell-escape
@@ -17,9 +38,9 @@ end
 --   explicitly. See plantuml.sty for how the prefix is determined (#27).
 -- @param server PlantUML server base URL, e.g. https://www.plantuml.com/plantuml.
 --   When set (package option `server`, or the PLANTUML_SERVER environment
---   variable as a fallback), png and svg diagrams are fetched from the server via
+--   variable as a fallback), png, svg, and eps diagrams are fetched from the server via
 --   curl instead of running plantuml.jar locally. The server cannot produce
---   latex/TikZ output, so latex always uses the local jar. (#6)
+--   latex/TikZ or pdf output, so those always use the local jar. (#6)
 -- @param sourceFile when given, render this existing PlantUML source file
 --   directly instead of the generated <jobname>-plantuml.txt. Used by
 --   \plantumlinput to render a diagram from a file. The output is still
@@ -30,13 +51,16 @@ end
 --   the diagram omits @startuml, as PlantUML then wraps preamble+body together).
 --   Its hash is folded into the output name so changing it rebuilds diagrams. (#5)
 -- @return the content hash of the diagram (so plantuml.sty can include the
---   hash-named output file), or nil if the diagram could not be generated.
+--   hash-named output file) and the directory prefix holding that file, or nil if
+--   the diagram could not be generated. A diagram already rendered is looked up
+--   in the output directory first, then in the working directory, so diagram
+--   files committed next to the document are used under -output-directory too.
 function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambleFile)
   iodir = iodir or ""
   server = server or ""
   if server == "" then server = os.getenv("PLANTUML_SERVER") or "" end
   while server:sub(-1) == "/" do server = server:sub(1, -2) end
-  local useServer = (server ~= "") and (mode == "png" or mode == "svg")
+  local useServer = (server ~= "") and (mode ~= "latex" and mode ~= "pdf")
 
   -- The source is either a user-supplied file (#3) or the generated per-diagram
   -- source written by the environment.
@@ -97,7 +121,19 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
   end
   if fileNonEmpty(plantUmlTargetFilename) then
     texio.write_nl("PlantUML cache hit \"" .. plantUmlTargetFilename .. "\"; skipping execution.")
-    return hash
+    return hash, iodir
+  end
+  local committedFilename = plantUmlTargetFilename:sub(#iodir + 1)
+  if iodir ~= "" and fileNonEmpty(committedFilename) then
+    texio.write_nl("PlantUML cache hit \"" .. committedFilename .. "\"; skipping execution.")
+    return hash, ""
+  end
+
+  -- Without full shell escape PlantUML cannot run; only cached (e.g. committed)
+  -- diagrams can be used.
+  if status.shell_escape ~= 1 then
+    texio.write_nl("PlantUML: \"" .. plantUmlTargetFilename .. "\" not rendered yet and no shell escape to run PlantUML.")
+    return nil
   end
 
   local plantUmlJar
@@ -135,10 +171,12 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
       cmd = cmd .. mode
     end
     cmd = cmd .. [[ < "]] .. plantUmlSourceFilename .. [[" > "]] .. plantUmlTargetFilename .. [["]]
-    -- PlantUML's TikZ output runs xelatex internally to measure text, and that
-    -- xelatex hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path (set by
-    -- lualatex's -output-directory). Clear it for the PlantUML child via a command
-    -- prefix -- os.setenv is not reliable for io.popen children across builds. (#27)
+    -- PlantUML shells out to a LaTeX engine to measure text for TikZ output, and
+    -- that engine hangs when TEXMF_OUTPUT_DIRECTORY holds a relative path (set by
+    -- lualatex's -output-directory). Recent PlantUML clears it internally, but do
+    -- it here too so older jars keep working -- harmless on newer ones. A command
+    -- prefix is used because os.setenv is not reliable for io.popen children across
+    -- builds. (#27, plantuml/plantuml#2764)
     if os.getenv("TEXMF_OUTPUT_DIRECTORY") then
       if package.config:sub(1, 1) == "\\" then
         cmd = [[set "TEXMF_OUTPUT_DIRECTORY=" && ]] .. cmd
@@ -164,5 +202,5 @@ function convertPlantUmlToTikz(jobname, mode, iodir, server, sourceFile, preambl
     texio.write_nl("PlantUML did not generate anything.")
     return nil
   end
-  return hash
+  return hash, iodir
 end

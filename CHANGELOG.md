@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Added `output=eps`: vector diagrams from a PlantUML server, converted by `epstopdf`.
+- Added `output=pdf`: vector diagrams with searchable text, written by the local `plantuml.jar`.
+
+### Changed
+
+- Already rendered diagrams are used without `-shell-escape`, so `plantuml-*-converted-to.*` files can be committed (e.g., for Overleaf).
+
+### Fixed
+
+- Fixed `-output-directory` on TeX Live before 2023. [#27](https://github.com/koppor/plantuml/issues/27)
+
 ## [0.7.0] - 2026-06-29
 
 ### Added

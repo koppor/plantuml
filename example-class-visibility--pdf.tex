@@ -1,0 +1,24 @@
+% Demonstrates class member visibility, including the protected marker "#".
+%
+% The diagram body is read verbatim, so write PlantUML exactly as in a .puml
+% file -- including characters LaTeX treats specially, such as "#". Write them
+% as-is; do NOT escape them (e.g. use "#balance", not "\#balance"). See #24.
+%
+% PDF output: needs graphviz, but no LaTeX engine and no inkscape. Vector
+% graphics with searchable text. Needs a plantuml.jar that can write PDF, e.g.
+% the default plantuml-<version>.jar (not the MIT/ASL/BSD/LGPL/GPLv2 jars).
+\documentclass{scrartcl}
+\usepackage[output=pdf]{plantuml}
+\begin{document}
+\begin{plantuml}
+class BankAccount {
+  +owner : String
+  #balance : double
+  -pin : int
+  ~auditTrail : List
+  +deposit(amount : double)
+  #applyInterest()
+  -validatePin(pin : int)
+}
+\end{plantuml}
+\end{document}

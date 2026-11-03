@@ -14,7 +14,7 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 
 1. Environment variable `PLANTUML_JAR` set to the location of `plantuml.jar`.
    You get it from <https://sourceforge.net/projects/plantuml/files/plantuml.jar/download>.
-   Not needed when rendering `png`/`svg` through a PlantUML server (see
+   Not needed when rendering `eps`/`png`/`svg` through a PlantUML server (see
    [Rendering via a PlantUML server](#rendering-via-a-plantuml-server)).
    If neither a jar nor a server is available, the diagram is replaced by a
    visible placeholder rather than aborting the build.
@@ -22,7 +22,13 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
    Example: `C:\Program Files (x86)\Graphviz2.38\bin\dot.exe`.
    You can install graphviz using `choco install graphviz`.
 3. lualatex or pdflatex available, called with the command line parameter `-shell-escape`.
-4. In case you want to have the images as PDFs (and not using TikZ or PNG), ensure that `inkscape.exe` and `pdfcrop` are in your path.
+4. For `output=pdf`, use a PlantUML jar that can write PDF: the default `plantuml-<version>.jar` (GPL) or `plantuml-epl-<version>.jar` from the [PlantUML releases](https://github.com/plantuml/plantuml/releases).
+   The permissively licensed jars (`plantuml-mit-*`, `plantuml-asl-*`, `plantuml-bsd-*`, `plantuml-lgpl-*`, `plantuml-gplv2-*`) lack the PDF library and fail with `NoClassDefFoundError: org/openpdf/...`.
+   `output=pdf` needs neither inkscape nor a LaTeX engine for PlantUML, and the text in the diagram stays searchable.
+   The PDF uses one of the standard PDF fonts Times-Roman, Helvetica, or Courier, not embedded, regardless of `skinparam defaultFontName`: names containing `Mono` or `Courier` give Courier, names containing `Serif` give Times-Roman (including PlantUML's default `SansSerif`), all others give Helvetica.
+   For a sans-serif diagram, use `skinparam defaultFontName Helvetica`.
+   If the font must be embedded (e.g., PDF/A or print), use `output=svg`, `output=eps`, or `output=latex`.
+5. In case you want to have SVG images converted to PDF, ensure that `inkscape.exe` and `pdfcrop` are in your path.
    You can get inkscape using `choco install inkscape`.
    `pdfcrop` should be part of your latex distribution.
 
@@ -131,7 +137,7 @@ Car -- Person : < owns
 
 ### Rendering via a PlantUML server
 
-Instead of a local `plantuml.jar`, `png` and `svg` diagrams can be rendered by a
+Instead of a local `plantuml.jar`, `eps`, `png`, and `svg` diagrams can be rendered by a
 [PlantUML server](https://github.com/plantuml/plantuml-server) over HTTP. This
 needs only `curl` — no Java and no local PlantUML installation — which is handy
 on CI and shared build machines (see [issue #6](https://github.com/koppor/plantuml/issues/6)).
@@ -158,10 +164,17 @@ docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
 
 Notes:
 
-- Only `output=png` and `output=svg` use the server. `output=latex` (TikZ, the
-  default) cannot be produced by a server and always uses the local
-  `plantuml.jar`, so keep `PLANTUML_JAR` set if you need latex output.
-- See [`example-server--png.tex`](example-server--png.tex) and
+- For vector output without extra tools, use `output=eps`: LaTeX converts the
+  EPS to PDF itself (via `epstopdf`/Ghostscript, shipped with TeX Live), so neither
+  inkscape nor a local jar is needed. Its text is drawn as outlines, so it is
+  sharp but not searchable in the PDF; use `svg` (needs inkscape) for real text.
+  The server offers no `pdf` or `latex`/TikZ output.
+- When a server is configured, `output=eps`, `output=png`, and `output=svg`
+  are rendered by it. `output=pdf` and `output=latex` (TikZ, the default) always
+  use the local `plantuml.jar`, as the server cannot produce them, so keep
+  `PLANTUML_JAR` set for those.
+- See [`example-server--eps.tex`](example-server--eps.tex),
+  [`example-server--png.tex`](example-server--png.tex), and
   [`example-server--svg.tex`](example-server--svg.tex) for complete examples.
 - The diagram source is sent hex-encoded in the request URL, so a very large
   diagram may hit the server's URL-length limit.
@@ -178,6 +191,28 @@ only edited diagrams are regenerated. The `-converted-to` suffix means the
 standard [TeX `.gitignore`](https://github.com/github/gitignore/blob/main/TeX.gitignore)
 already ignores these files (via `*-converted-to.*`), so no extra entry is
 needed. Delete the `plantuml-*-converted-to.*` files to clear the cache.
+
+### Committing rendered diagrams (e.g. for Overleaf)
+
+The cached files can be committed, so the document builds where PlantUML is not
+available, for instance on Overleaf or without `-shell-escape`. A diagram whose
+`plantuml-<hash>-converted-to.*` file exists is used as is; neither Java nor
+shell escape is needed for it. Only new or changed diagrams need PlantUML: build
+locally with `PLANTUML_JAR` set and `-shell-escape`, then commit the new files.
+Until then, such a diagram shows the "could not be generated" placeholder.
+This also works with `-output-directory`: a diagram file is looked up in the
+output directory first, then next to the document.
+TeX Live before 2023 does not pass the output directory to packages: `lualatex`
+reads it from its command line, `pdflatex` via `ps` (Linux and macOS only).
+
+The standard TeX `.gitignore` ignores these files, so add an exception:
+
+```gitignore
+!plantuml-*-converted-to.*
+```
+
+Files of outdated diagrams are not removed automatically. To clean up, delete all
+`plantuml-*-converted-to.*` files, build once, and commit the result.
 
 ### Global Preamble
 

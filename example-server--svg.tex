@@ -7,7 +7,7 @@
 % server instead, set it to https://www.plantuml.com/plantuml. Alternatively,
 % drop the option and set the PLANTUML_SERVER environment variable.
 %
-% Only png and svg work via a server; latex/TikZ output always uses the jar.
+% Only eps, png, and svg work via a server; latex/TikZ output always uses the jar.
 \documentclass{scrartcl}
 
 \usepackage{graphics}
@@ -19,10 +19,7 @@
 \usepackage[output=svg, server=http://localhost:8080]{plantuml}
 \begin{document}
 \begin{plantuml}
-class Car
-
-Driver - Car : drives >
-Car *- Wheel : have 4 >
-Car -- Person : < owns
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
 \end{plantuml}
 \end{document}

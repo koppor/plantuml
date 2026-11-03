@@ -1,6 +1,6 @@
 # plantuml [![CTAN](https://img.shields.io/badge/CTAN-plantuml-blue.svg?style=flat-square)](https://ctan.org/pkg/plantuml)
 
-> A LuaLaTeX and pdfLaTeX package for PlantUML in LaTeX
+> Embed PlantUML diagrams in LaTeX documents
 
 Write [PlantUML](https://plantuml.com/) diagrams directly in your LaTeX document:
 

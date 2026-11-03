@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-03
+
 ### Added
 
 - Added `output=eps`: vector diagrams from a PlantUML server, converted by `epstopdf`.
@@ -142,7 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Initial public release
 
-[Unreleased]: https://github.com/koppor/plantuml/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/koppor/plantuml/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/koppor/plantuml/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/koppor/plantuml/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/koppor/plantuml/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/koppor/plantuml/compare/0.5.0...0.5.1

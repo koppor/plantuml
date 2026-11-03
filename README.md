@@ -329,6 +329,7 @@ Release preparation:
 2. Adapt as date and version number (line 6) in `plantuml.sty`.
 3. Adapt `CHANGELOG.md`.
 4. Set a git tag and push.
+5. Upload `plantuml.tar.gz` (artifact `ctan` of the Release workflow run for the tag) to CTAN.
 
 ## Alternative Solutions
 

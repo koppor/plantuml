@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the empty version in the README of the CTAN package.
+
 ## [0.8.0] - 2026-11-03
 
 ### Added

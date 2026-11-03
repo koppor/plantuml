@@ -25,6 +25,9 @@ for why pdfLaTeX is driven directly via shell escape ([issue #1](https://github.
 4. For `output=pdf`, use a PlantUML jar that can write PDF: the default `plantuml-<version>.jar` (GPL) or `plantuml-epl-<version>.jar` from the [PlantUML releases](https://github.com/plantuml/plantuml/releases).
    The permissively licensed jars (`plantuml-mit-*`, `plantuml-asl-*`, `plantuml-bsd-*`, `plantuml-lgpl-*`, `plantuml-gplv2-*`) lack the PDF library and fail with `NoClassDefFoundError: org/openpdf/...`.
    `output=pdf` needs neither inkscape nor a LaTeX engine for PlantUML, and the text in the diagram stays searchable.
+   The PDF uses one of the standard PDF fonts Times-Roman, Helvetica, or Courier, not embedded, regardless of `skinparam defaultFontName`: names containing `Mono` or `Courier` give Courier, names containing `Serif` give Times-Roman (including PlantUML's default `SansSerif`), all others give Helvetica.
+   For a sans-serif diagram, use `skinparam defaultFontName Helvetica`.
+   If the font must be embedded (e.g., PDF/A or print), use `output=svg`, `output=eps`, or `output=latex`.
 5. In case you want to have SVG images converted to PDF, ensure that `inkscape.exe` and `pdfcrop` are in your path.
    You can get inkscape using `choco install inkscape`.
    `pdfcrop` should be part of your latex distribution.

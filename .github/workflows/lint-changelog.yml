@@ -18,7 +18,7 @@ jobs:
       - name: Set up Git repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Lint CHANGELOG.md with heylogs
-        uses: jbangdev/jbang-action@c1e811eb87ddfff6646c545c708fbb686253f066 # v0.141.0
+        uses: jbangdev/jbang-action@cc5515892c9ab66bc1f9644425c8b28003aed1fe # v0.143.0
         with:
           script: com.github.nbbrd.heylogs:heylogs-cli:0.19.1:bin
           scriptargs: "check --format github-actions CHANGELOG.md"

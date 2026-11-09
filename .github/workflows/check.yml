@@ -53,7 +53,7 @@ jobs:
       - name: Configure graphviz plugins
         run: sudo dot -c
       - name: Install TeX Live
-        uses: zauguin/install-texlive@f5e7d0b117035fff797d4392ea94131747e03d60 # v4
+        uses: zauguin/install-texlive@c9f3ea3d51b2e04d092c4f9d208a19542d5dabcf # v4.5.0
         with:
           package_file: tl_packages
       - name: Compile examples with -output-directory
@@ -133,7 +133,7 @@ jobs:
           version: 1.1
           execute_install_scripts: true
       - name: Install TeX Live
-        uses: zauguin/install-texlive@f5e7d0b117035fff797d4392ea94131747e03d60 # v4
+        uses: zauguin/install-texlive@c9f3ea3d51b2e04d092c4f9d208a19542d5dabcf # v4.5.0
         with:
           package_file: tl_packages
       - name: Wait for the PlantUML server
